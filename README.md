@@ -61,7 +61,10 @@ needs ~10 s to plan and ~60 s to write the overview, and the 16-19 executor call
 in about 25 s of wall time. (With `openai/gpt-oss-120b` as orchestrator the same run took ~6 minutes.)
 Deep Infra currently appears to ignore the reasoning-effort setting for Gemini 3.7 Flash.
 
-To try it, upload the folder `samples/battery-study` and choose "I have a draft".
+To try it, upload one of the samples (see `samples/SOURCES.md`):
+
+- `samples/18650-clustering-zenodo` — a real open dataset with code (CC BY 4.0); choose "No paper yet".
+- `samples/battery-study` — synthetic, with a deliberately flawed AI draft; choose "I have a draft".
 
 ## How it works
 
