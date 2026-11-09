@@ -1,0 +1,148 @@
+Paper
+Parse
+Features
+Formats
+How it works
+Quality
+Sign in
+Open your space
+New
+LaTeX editor with a live PDF
+Every paper,
+perfectly structured.
+
+Paper Parse reads PDFs, Word files and LaTeX projects into one clean document — headings, equations, tables and figures intact — so you can read, correct and re-publish it in any format.
+
+Open your space
+See how it works
+Runs on your machine
+No account in the cloud
+Open formats in, open formats out
+PDF
+reader · One-Loop Vacuum Polarisation
+One-Loop Vacuum Polarisation in Dimensional Regularisation
+A. Mehta¹ · C. Fontaine²
+1  Lagrangian and conventions
+
+We work with the metric ημν and the QED Lagrangian density
+
+ℒ = −¼ FμνFμν + ψ̄(iD̸ − m)ψ
+(1.1)
+Observable
+Ideal
+Measured
+⟨XX⟩
+1
+0.86 ± 0.01
+⟨ZZ⟩
+−1
+−0.94 ± 0.01
+DOCX
+Word equations
+TEX
+Compiles cleanly
+HTML
+Reader view
+TESTED ON
+IEEE
+ACM
+Springer LNCS
+Elsevier
+REVTeX
+APA 7
+NeurIPS
+ICML
+amsart
+FEATURES
+Everything a paper is made of, kept
+
+Not a text dump. Paper Parse understands the structure of a scientific document and carries it across formats.
+
+Real equations
+
+Display and inline formulas stay LaTeX — rendered with KaTeX in the reader, native equations in Word, compilable in TeX.
+
+Faithful structure
+
+Headings and numbering, theorems and proofs, lists with their own labels, footnotes, references and citations — as the source prints them.
+
+Tables & figures
+
+Spanning cells, captions and figure crops survive the trip, and diagrams LaTeX draws become images where nothing else can show them.
+
+Any format to any format
+
+PDF, Word and LaTeX in; PDF, LaTeX and Word out — in one or two columns and five journal templates.
+
+Read, correct, write
+
+A calm reader with outline and search, the original page beside the text — and a LaTeX editor with a live PDF, SyncTeX and an AI assistant.
+
+Optional AI review
+
+Turn it on for difficult PDFs: models check headings, clear figure debris and compare pages with the result. Off by default.
+
+FORMATS
+One document model, every way in and out
+
+Each file is read into the same structure, so every export starts from the full paper — not from another export.
+
+YOU BRING
+PDF
+PDF
+born-digital, one or two columns
+DOCX
+Word
+with Word equations or typed math
+TEX
+LaTeX
+a .tex file or a zipped project
+one structured
+document
+YOU GET
+PDF
+PDF
+typeset with LaTeX
+TEX
+LaTeX
+.zip with figures
+DOC
+Word
+native equations
+HOW IT WORKS
+From file to finished paper in three steps
+Drop your files
+
+PDF, Word or LaTeX — several at once. Word and LaTeX are ready in about a second, a PDF in under a minute.
+
+Read and fix
+
+Open the paper in the reader, compare it with the original page and correct anything in place. Every change is kept as a version.
+
+Export anywhere
+
+Download it in the format you need, in the column layout and journal template you choose.
+
+QUALITY
+Measured, not promised
+
+Every change runs against a corpus of real templates and field papers, from a maths note to a high-energy physics letter.
+
+0.99
+average round-trip score, TeX and Word
+100%
+of test formulas rendered in the reader
+29
+journal and field templates tested
+6
+export formats from one model
+
+From the project's own test suite (round-trip and field-template benchmarks).
+
+Bring your first paper
+
+Open your space, drop a PDF, Word file or LaTeX project, and see it come back structured.
+
+Open your space
+© Paper Parse · runs locally
+Features · Formats · How it works · Your space

@@ -1,0 +1,1051 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your space — Paper Parse</title>
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&amp;family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+  :root{
+    --bg:#f8f6f1; --bg2:#efebe3; --card:#ffffff; --ink:#1c1917; --muted:#5f5750;
+    --faint:#948b81; --rule:#e6e0d6; --rule2:#d9d1c4;
+    --teal:#0f5c5c; --teal-d:#0b4545; --teal-l:#e8f2ef; --teal-m:#bfd9d2;
+    --rust:#b45309; --rust-l:#fdf1e3; --red:#b42318; --red-l:#fdecea;
+    --amber:#a15c07; --amber-l:#fff5e0; --shadow:0 1px 2px rgba(28,25,23,.05),0 4px 16px rgba(28,25,23,.06);
+    --serif:Fraunces,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    --r:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#141311; --bg2:#1c1a17; --card:#1e1c19; --ink:#ece8e2; --muted:#b5ada3;
+    --faint:#857d74; --rule:#2f2c28; --rule2:#3b3732;
+    --teal:#4fb3a5; --teal-d:#79c9bd; --teal-l:#18302d; --teal-m:#2a5650;
+    --rust:#e08a3c; --rust-l:#2e2116; --red:#f0857a; --red-l:#33191a;
+    --amber:#e6a23c; --amber-l:#2f2512; --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+  }}
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html{scroll-behavior:smooth; scroll-padding-top:5rem}
+  html,body{overflow-x:clip}
+  body{margin:0; font-family:var(--sans); color:var(--ink); background:var(--bg);
+       line-height:1.5; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility}
+  h1,h2,h3,.brand,.drop .big,.empty b,.dropall div{font-variation-settings:"opsz" 144,"SOFT" 30}
+  ::selection{background:color-mix(in srgb,var(--teal) 22%,transparent)}
+  a{color:var(--teal)}
+  button,select,input{font:inherit; color:inherit}
+  :focus-visible{outline:2px solid var(--teal); outline-offset:2px; border-radius:6px}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 1.25rem}
+  svg.i{width:1.1em; height:1.1em; vertical-align:-.18em; flex:none}
+  .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+
+  /* ---------- header ---------- */
+  header{position:sticky; top:0; z-index:30; background:color-mix(in srgb,var(--bg) 82%,transparent);
+         backdrop-filter:saturate(1.4) blur(10px); -webkit-backdrop-filter:saturate(1.4) blur(10px);
+         border-bottom:1px solid var(--rule)}
+  header .wrap{display:flex; align-items:center; gap:1.5rem; height:3.75rem}
+  .brand{display:flex; align-items:center; gap:.55rem; text-decoration:none; color:var(--ink);
+         font:600 1.12rem var(--serif); white-space:nowrap}
+  .logo{width:1.9rem; height:1.9rem; border-radius:8px; color:#fff; display:grid; place-items:center;
+        background:linear-gradient(145deg,#157070,#0b4545); box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+  @media (prefers-color-scheme:dark){.logo{color:#0f1a19}}
+  .brand em{font-style:normal; color:var(--rust)}
+  nav{display:flex; gap:.15rem}
+  nav a{color:var(--muted); text-decoration:none; padding:.4rem .75rem; border-radius:8px;
+        font-size:.9rem; font-weight:500}
+  nav a:hover{color:var(--ink); background:var(--bg2)}
+  nav a.on{color:var(--teal); background:var(--teal-l)}
+  .auth{margin-left:auto; position:relative; display:flex; align-items:center; gap:.5rem;
+        font-size:.86rem; color:var(--muted)}
+  .who{display:flex; align-items:center; gap:.5rem}
+  .avatar{width:1.9rem; height:1.9rem; border-radius:50%; background:var(--teal-l); color:var(--teal);
+          display:grid; place-items:center; font-weight:700; font-size:.8rem}
+  .ghost{border:1px solid var(--rule2); background:var(--card); border-radius:9px;
+         padding:.4rem .8rem; cursor:pointer; color:var(--ink); font-size:.86rem; font-weight:500}
+  .ghost:hover{border-color:var(--teal); color:var(--teal)}
+  .pop{position:absolute; right:0; top:calc(100% + .5rem); width:17rem; background:var(--card);
+       border:1px solid var(--rule); border-radius:var(--r); box-shadow:var(--shadow); padding:1rem;
+       display:grid; gap:.55rem}
+  .pop h4{margin:0; font-size:.95rem; color:var(--ink)}
+  .field{width:100%; padding:.55rem .7rem; border:1px solid var(--rule2); border-radius:9px;
+         background:var(--bg); color:var(--ink)}
+  .field:focus{outline:2px solid var(--teal-m); border-color:var(--teal)}
+  .err{color:var(--red); font-size:.82rem}
+  .err:empty{display:none}
+  .space-tag{font-size:.78rem; font-weight:600; color:var(--muted); border-left:1px solid var(--rule2);
+       padding-left:1rem; margin-left:-.5rem; white-space:nowrap}
+  .who{cursor:pointer; border:1px solid transparent; border-radius:999px; padding:.15rem .6rem .15rem .2rem;
+       background:transparent}
+  .who:hover,.who[aria-expanded=true]{background:var(--bg2)}
+  .umenu{width:15rem; padding:.35rem}
+  .umenu .mi{display:flex; gap:.55rem; align-items:center; width:100%; text-align:left; border:0;
+       background:transparent; padding:.55rem .65rem; border-radius:8px; cursor:pointer; font-size:.88rem}
+  .umenu .mi:hover{background:var(--bg2)}
+  .umenu .sep{height:1px; background:var(--rule); margin:.3rem 0}
+  .umenu .hd{padding:.45rem .65rem .25rem; font-size:.78rem; color:var(--faint)}
+  .umenu .mset{padding:.1rem .65rem .45rem}
+  .umenu .mset select{width:100%; font-size:.85rem}
+  .umenu .mhint{font-size:.74rem; color:var(--faint); margin-top:.3rem; line-height:1.35}
+  .pwform{display:grid; gap:.45rem; padding:.35rem .45rem .5rem}
+  .ok{color:var(--teal); font-size:.82rem}
+  .ok:empty{display:none}
+  @media (max-width:760px){nav{display:none} header .wrap{gap:.8rem} .space-tag{display:none}}
+
+  /* ---------- buttons ---------- */
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:.45rem;
+       background:var(--teal); color:#fff; border:0; border-radius:10px; padding:.62rem 1.15rem;
+       font-weight:600; font-size:.92rem; cursor:pointer; text-decoration:none; white-space:nowrap;
+       transition:background .15s, transform .05s}
+  .btn:hover{background:var(--teal-d)}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.55; cursor:default}
+  @media (prefers-color-scheme:dark){.btn{color:#0e1716}}
+  .btn.warm{background:var(--rust)} .btn.warm:hover{background:#9a4a08}
+  .btn.danger{background:var(--red)}
+  .btn.sm{padding:.42rem .85rem; font-size:.85rem; border-radius:9px}
+  .btn.line{background:var(--card); color:var(--teal); border:1px solid var(--rule2)}
+  .btn.line:hover{border-color:var(--teal); background:var(--teal-l)}
+
+  /* ---------- setup banner ---------- */
+  .setup{margin-top:1.4rem; background:var(--amber-l); border:1px solid color-mix(in srgb,var(--amber) 30%,transparent);
+         border-radius:var(--r); padding:1rem 1.2rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap}
+  .setup .t{flex:1; min-width:16rem; font-size:.9rem; color:var(--muted)}
+  .setup .t b{display:block; color:var(--ink); font-size:1rem; margin-bottom:.1rem}
+  .setup form{display:flex; gap:.5rem; flex-wrap:wrap}
+  .setup .field{width:10rem; background:var(--card)}
+  @media (max-width:640px){.setup form{width:100%} .setup .field{flex:1; width:auto; min-width:8rem}
+    .setup .btn{width:100%}}
+
+  /* ---------- hero ---------- */
+  .hero{padding:2.8rem 0 0; text-align:center; position:relative}
+  .hero::before{content:""; position:absolute; inset:-5rem 0 auto; height:30rem; z-index:-1; pointer-events:none;
+       background:radial-gradient(40rem 18rem at 50% 0,color-mix(in srgb,var(--teal) 12%,transparent),transparent 70%)}
+  .eyebrow{display:inline-flex; gap:.4rem; align-items:center; font-size:.78rem; font-weight:600;
+           letter-spacing:.06em; text-transform:uppercase; color:var(--teal); background:var(--teal-l);
+           padding:.3rem .75rem; border-radius:999px}
+  .hero h1{font:600 clamp(2rem,4.4vw,2.9rem)/1.1 var(--serif); margin:.9rem auto .6rem;
+           max-width:44rem; letter-spacing:-.02em; text-wrap:balance}
+  .hero h1 span{color:var(--teal); font-style:italic; font-weight:500}
+  .lead{color:var(--muted); font-size:1.05rem; max-width:40rem; margin:0 auto}
+
+  /* ---------- drop zone ---------- */
+  #convert{padding-top:1.8rem}
+  .drop{position:relative; background:var(--card); border:1.5px dashed var(--rule2); border-radius:22px;
+        padding:2.4rem 1.5rem 1.9rem; text-align:center; box-shadow:var(--shadow);
+        transition:border-color .15s, background .15s, transform .15s, box-shadow .15s; cursor:pointer}
+  .drop:hover{border-color:var(--teal-m); box-shadow:0 1px 2px rgba(28,25,23,.05),0 12px 32px rgba(28,25,23,.09)}
+  .drop.over{border-color:var(--teal); background:var(--teal-l); transform:scale(1.005)}
+  .drop .ico{width:3.6rem; height:3.6rem; margin:0 auto 1rem; border-radius:18px;
+             background:linear-gradient(145deg,var(--teal-l),color-mix(in srgb,var(--teal-l) 60%,var(--card)));
+             color:var(--teal); display:grid; place-items:center; box-shadow:inset 0 0 0 1px var(--teal-m);
+             transition:transform .2s}
+  .drop:hover .ico{transform:translateY(-2px)}
+  .drop .ico svg{width:1.8rem; height:1.8rem}
+  .drop .big{font:600 1.3rem var(--serif); letter-spacing:-.01em}
+  .drop .big u{color:var(--teal); text-decoration-thickness:2px; text-underline-offset:3px}
+  .drop .sub{color:var(--muted); font-size:.88rem; margin-top:.35rem}
+  .fmts-in{display:flex; gap:.45rem; justify-content:center; flex-wrap:wrap; margin-top:1.1rem}
+  .tag{display:inline-flex; align-items:center; gap:.35rem; font-size:.78rem; font-weight:600;
+       padding:.25rem .65rem; border-radius:999px; background:var(--bg2); color:var(--muted)}
+  .tag i{width:.5rem; height:.5rem; border-radius:50%; display:inline-block}
+  input[type=file]{display:none}
+  .opts{display:flex; gap:1rem; align-items:center; justify-content:space-between; flex-wrap:wrap;
+        margin:.9rem .2rem 0; font-size:.86rem; color:var(--muted)}
+  .toggle{display:flex; gap:.7rem; align-items:center; cursor:pointer; text-align:left}
+  .toggle input{position:absolute; opacity:0; pointer-events:none}
+  .knob{flex:none; width:2.4rem; height:1.4rem; border-radius:999px; background:var(--rule2);
+        position:relative; transition:background .15s}
+  .knob::after{content:""; position:absolute; top:.18rem; left:.18rem; width:1.04rem; height:1.04rem;
+        border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25); transition:transform .15s}
+  .toggle input:checked + .knob{background:var(--teal)}
+  .toggle input:checked + .knob::after{transform:translateX(1rem)}
+  .toggle input:focus-visible + .knob{outline:2px solid var(--teal); outline-offset:2px}
+  .toggle b{color:var(--ink); font-weight:600}
+  .hint{position:relative; display:inline-grid; place-items:center; width:1.15rem; height:1.15rem;
+        border-radius:50%; border:1px solid var(--rule2); color:var(--faint); font-size:.7rem;
+        font-weight:700; cursor:help; margin-left:.25rem}
+  .hint .tip{display:none; position:absolute; bottom:calc(100% + .45rem); left:50%;
+        transform:translateX(-50%); width:19rem; background:var(--ink); color:var(--bg);
+        font-weight:400; font-size:.8rem; line-height:1.45; padding:.65rem .8rem; border-radius:10px;
+        text-align:left; z-index:5; box-shadow:var(--shadow)}
+  .hint:hover .tip,.hint:focus .tip{display:block}
+  details.adv summary{cursor:pointer; color:var(--muted); list-style:none; font-weight:500}
+  details.adv summary::-webkit-details-marker{display:none}
+  details.adv summary::before{content:"⚙ "}
+  details.adv[open] summary{color:var(--teal)}
+  details.adv label{display:flex; gap:.5rem; align-items:center; margin-top:.45rem}
+  details.adv select{border:1px solid var(--rule2); border-radius:8px; padding:.3rem .45rem; background:var(--card)}
+  .dropall{position:fixed; inset:0; z-index:50; background:color-mix(in srgb,var(--teal) 14%,transparent);
+           backdrop-filter:blur(2px); display:grid; place-items:center; pointer-events:none}
+  .dropall div{background:var(--card); border:2px dashed var(--teal); border-radius:20px;
+               padding:2rem 3rem; font:600 1.3rem var(--serif); color:var(--teal); box-shadow:var(--shadow)}
+
+  /* upload queue */
+  .queue{display:grid; gap:.4rem; margin-top:.9rem}
+  .up{display:flex; gap:.7rem; align-items:center; background:var(--card); border:1px solid var(--rule);
+      border-radius:12px; padding:.6rem .85rem; font-size:.86rem}
+  .up .nm{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:500}
+  .up .st{color:var(--muted); font-size:.82rem; text-align:right}
+  .up .dot{width:.55rem; height:.55rem; border-radius:50%; background:var(--amber); flex:none}
+  .up.ok .dot{background:var(--teal)} .up.bad .dot{background:var(--red)} .up.bad .st{color:var(--red)}
+  .up.busy .dot{animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.3}}
+
+  /* ---------- sections ---------- */
+  section{padding-top:3rem}
+  .sh{display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+      margin-bottom:1rem}
+  h2{font:600 1.55rem var(--serif); margin:0; letter-spacing:-.015em}
+  .sh p{margin:.2rem 0 0; color:var(--muted); font-size:.9rem}
+
+  /* stats as filters */
+  .stats{display:flex; gap:.45rem; flex-wrap:wrap}
+  .stat{display:flex; align-items:center; gap:.45rem; border:1px solid var(--rule); background:var(--card);
+        border-radius:999px; padding:.32rem .8rem; font-size:.84rem; color:var(--muted); cursor:pointer}
+  .stat b{color:var(--ink); font-variant-numeric:tabular-nums}
+  .stat i{width:.5rem; height:.5rem; border-radius:50%; background:var(--faint)}
+  .stat.done i{background:var(--teal)} .stat.busy i{background:var(--amber)} .stat.error i{background:var(--red)}
+  .stat:hover{border-color:var(--rule2)}
+  .stat.on{border-color:var(--teal); background:var(--teal-l); color:var(--teal)}
+
+  /* toolbar */
+  .tools{display:flex; gap:.55rem; flex-wrap:wrap; align-items:center; margin-bottom:.9rem; font-size:.86rem}
+  .search{flex:1; min-width:15rem; position:relative}
+  .search svg{position:absolute; left:.75rem; top:50%; transform:translateY(-50%); color:var(--faint)}
+  .search input{width:100%; padding:.6rem 2.4rem .6rem 2.3rem; border:1px solid var(--rule2);
+        border-radius:11px; background:var(--card)}
+  .search input:focus{outline:2px solid var(--teal-m); border-color:var(--teal)}
+  .search kbd{position:absolute; right:.7rem; top:50%; transform:translateY(-50%); font:600 .7rem var(--sans);
+        color:var(--faint); border:1px solid var(--rule2); border-radius:5px; padding:.05rem .35rem}
+  .seg{display:inline-flex; background:var(--bg2); border-radius:11px; padding:.2rem; gap:.1rem}
+  .seg button{border:0; background:transparent; padding:.42rem .75rem; cursor:pointer; color:var(--muted);
+        border-radius:8px; font-weight:500}
+  .seg button.on{background:var(--card); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .tools select{border:1px solid var(--rule2); border-radius:11px; padding:.55rem .6rem; background:var(--card);
+        color:var(--ink)}
+  .count{color:var(--faint); font-size:.8rem; margin:-.3rem 0 .6rem}
+
+  /* bulk */
+  .bulk{background:var(--card); border:1px solid var(--teal-m); border-radius:var(--r); padding:.85rem 1rem;
+        margin-bottom:.9rem; font-size:.88rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap}
+  .bulk .prog{color:var(--muted)}
+
+  /* document list */
+  .day{font-size:.75rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--faint);
+       margin:1.1rem .2rem .45rem}
+  .day:first-child{margin-top:0}
+  .doc{background:var(--card); border:1px solid var(--rule); border-radius:var(--r); margin-bottom:.5rem;
+       transition:border-color .15s, box-shadow .15s, transform .15s}
+  .doc:hover{border-color:var(--rule2); box-shadow:var(--shadow); transform:translateY(-1px)}
+  /* the row whose ⋯ menu is open sits above the rows after it (its hover lift makes it a layer
+     of its own: the menu's z-index counts only inside the row, and the next row covered Delete) */
+  .doc.menuopen{position:relative; z-index:20}
+  .doc.err{border-color:color-mix(in srgb,var(--red) 30%,var(--rule))}
+  .row{display:flex; gap:.9rem; align-items:center; padding:.75rem .9rem}
+  .kind{flex:none; width:2.5rem; height:3rem; border-radius:7px; position:relative; display:grid;
+        place-items:end center; padding-bottom:.4rem; font:800 .62rem var(--sans); letter-spacing:.04em;
+        color:#fff; box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 1px 2px rgba(0,0,0,.12)}
+  .kind::before{content:""; position:absolute; top:0; right:0; width:.75rem; height:.75rem;
+        background:linear-gradient(225deg,var(--bg) 50%,rgba(255,255,255,.35) 50%); border-bottom-left-radius:4px}
+  .kind.pdf{background:#c2410c} .kind.docx{background:#2b5797} .kind.tex{background:#0f6b5f}
+  .info{flex:1; min-width:0}
+  .name{display:block; font-weight:600; color:var(--ink); text-decoration:none; overflow:hidden;
+        text-overflow:ellipsis; white-space:nowrap}
+  a.name:hover{color:var(--teal)}
+  .meta{display:flex; gap:.35rem .7rem; flex-wrap:wrap; margin-top:.15rem; font-size:.8rem; color:var(--faint)}
+  .meta .ai{color:var(--teal); font-weight:600}
+  .meta .qchk{display:inline-flex; align-items:center; gap:.25rem; color:#b45309; font-weight:600; text-decoration:none}
+  .meta .qchk:hover{text-decoration:underline}
+  .meta .qchk svg{width:13px; height:13px}
+  .note{font-size:.8rem; color:var(--muted); margin-top:.3rem}
+  .note.bad{color:var(--red)}
+  .status{display:inline-flex; align-items:center; gap:.35rem; font-size:.78rem; font-weight:600;
+          padding:.22rem .6rem; border-radius:999px; white-space:nowrap}
+  .status i{width:.45rem; height:.45rem; border-radius:50%; background:currentColor}
+  .status.done{background:var(--teal-l); color:var(--teal)}
+  .status.error{background:var(--red-l); color:var(--red)}
+  .status.running,.status.queued{background:var(--amber-l); color:var(--amber)}
+  .status.running i,.status.queued i{animation:pulse 1s infinite}
+  .acts{display:flex; gap:.35rem; align-items:center; position:relative}
+  .iconbtn{border:1px solid transparent; background:transparent; border-radius:9px; width:2.2rem; height:2.2rem;
+           display:grid; place-items:center; cursor:pointer; color:var(--muted)}
+  .iconbtn:hover,.iconbtn[aria-expanded=true]{background:var(--bg2); color:var(--ink)}
+  .menu{position:absolute; right:0; top:calc(100% + .3rem); z-index:10; min-width:12.5rem; background:var(--card);
+        border:1px solid var(--rule); border-radius:12px; box-shadow:var(--shadow); padding:.3rem}
+  .menu button{display:flex; gap:.6rem; align-items:center; width:100%; text-align:left; border:0;
+        background:transparent; padding:.55rem .7rem; border-radius:8px; cursor:pointer; font-size:.86rem}
+  .menu button:hover{background:var(--bg2)}
+  .menu .rm{color:var(--red)}
+  .menu .rm.sure{background:var(--red-l)}
+  .bar{height:3px; background:var(--bg2); border-radius:3px; overflow:hidden; margin-top:.5rem}
+  .bar i{display:block; height:100%; width:35%; background:var(--amber); border-radius:3px;
+         animation:slide 1.3s infinite ease-in-out}
+  @keyframes slide{0%{margin-left:-35%}100%{margin-left:100%}}
+  .more{display:flex; margin:1rem auto 0}
+  @media (max-width:760px){.acts .texbtn{display:none}}
+  @media (max-width:640px){
+    .row{flex-wrap:wrap} .info{flex-basis:calc(100% - 3.5rem)}
+    .row .status{margin-left:3.4rem} .acts{margin-left:auto}
+    .hero{padding-top:1.8rem} .drop{padding:1.8rem 1rem 1.4rem}
+  }
+
+  /* export / re-process panel */
+  .xp{border-top:1px solid var(--rule); background:var(--bg); padding:1rem; font-size:.86rem;
+      border-radius:0 0 var(--r) var(--r)}
+  .xp h5{margin:0 0 .6rem; font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--faint)}
+  .fmts{display:grid; grid-template-columns:repeat(auto-fill,minmax(9.5rem,1fr)); gap:.45rem}
+  .fmt{display:flex; gap:.55rem; align-items:flex-start; border:1px solid var(--rule); border-radius:11px;
+       padding:.6rem .7rem; background:var(--card); cursor:pointer}
+  .fmt:hover{border-color:var(--teal-m)}
+  .fmt input{position:absolute; opacity:0}
+  .fmt .fi{flex:none; width:1.9rem; height:1.9rem; border-radius:8px; display:grid; place-items:center;
+       font:800 .58rem var(--sans); color:#fff}
+  .fmt b{display:block; color:var(--ink); font-size:.88rem}
+  .fmt span{color:var(--faint); font-size:.75rem; line-height:1.35}
+  .fmt.sel{border-color:var(--teal); background:var(--teal-l); box-shadow:inset 0 0 0 1px var(--teal)}
+  .xrow{display:flex; gap:.9rem; align-items:center; flex-wrap:wrap; margin-top:.85rem; color:var(--muted)}
+  .xrow label{display:flex; gap:.45rem; align-items:center}
+  .xrow select{border:1px solid var(--rule2); border-radius:8px; padding:.35rem .45rem; background:var(--card)}
+  .xrow .btn{margin-left:auto}
+  .xmsg{margin-top:.55rem; color:var(--muted)} .xmsg.bad{color:var(--red)}
+  .rp p{margin:0 0 .5rem; color:var(--muted)}
+
+  .empty{background:var(--card); border:1px dashed var(--rule2); border-radius:var(--r); padding:2.4rem 1rem;
+         text-align:center; color:var(--muted)}
+  .empty b{display:block; font:600 1.15rem var(--serif); color:var(--ink); margin:.5rem 0 .2rem}
+  .empty svg{width:2.4rem; height:2.4rem; color:var(--faint)}
+  .skel{height:4.4rem; border-radius:var(--r); margin-bottom:.5rem;
+        background:linear-gradient(90deg,var(--card) 25%,var(--bg2) 50%,var(--card) 75%);
+        background-size:200% 100%; animation:sk 1.2s infinite}
+  @keyframes sk{to{background-position:-200% 0}}
+
+  /* ---------- how it works ---------- */
+  .how{display:grid; grid-template-columns:repeat(3,1fr); gap:.9rem}
+  @media (max-width:860px){.how{grid-template-columns:1fr}}
+  .card{background:var(--card); border:1px solid var(--rule); border-radius:var(--r); padding:1.2rem 1.25rem;
+        font-size:.9rem; color:var(--muted)}
+  .card .n{width:2.2rem; height:2.2rem; border-radius:10px; background:var(--teal-l); color:var(--teal);
+        display:grid; place-items:center; margin-bottom:.75rem}
+  .card h3{margin:0 0 .35rem; font:600 1.12rem var(--serif); color:var(--ink); letter-spacing:-.01em}
+  .card ul{margin:.4rem 0 0; padding-left:1.1rem} .card li{margin:.25rem 0}
+  .card p{margin:.35rem 0 0}
+  .outs{display:grid; grid-template-columns:1fr; gap:.35rem; margin-top:.6rem}
+  .outs div{background:var(--bg); border-radius:9px; padding:.4rem .55rem; font-size:.78rem}
+  .outs b{display:block; color:var(--ink); font-size:.82rem}
+
+  /* ---------- memory ---------- */
+  details.memwrap{background:var(--card); border:1px solid var(--rule); border-radius:var(--r);
+       padding:1rem 1.2rem; font-size:.88rem}
+  details.memwrap summary{cursor:pointer; font-weight:600; color:var(--ink); list-style:none;
+       display:flex; align-items:center; gap:.55rem}
+  details.memwrap summary::-webkit-details-marker{display:none}
+  details.memwrap summary .chev{margin-left:auto; color:var(--faint); transition:transform .15s}
+  details.memwrap[open] summary .chev{transform:rotate(180deg)}
+  details.memwrap summary small{font-weight:400; color:var(--faint)}
+  .mem form{display:flex; gap:.45rem; flex-wrap:wrap; margin:.9rem 0 .5rem}
+  .mem .field{width:auto}
+  .mem input[name=value]{flex:1; min-width:12rem}
+  .mrow{display:flex; gap:.6rem; align-items:center; border-top:1px solid var(--rule); padding:.55rem 0}
+  .mrow .k{font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+       color:var(--teal); background:var(--teal-l); border-radius:6px; padding:.1rem .45rem}
+  .mrow .del{margin-left:auto}
+
+  footer{margin:3.5rem auto 2.5rem; font-size:.8rem; color:var(--faint); display:flex; gap:1rem;
+         justify-content:space-between; flex-wrap:wrap; border-top:1px solid var(--rule); padding-top:1.2rem}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"></path><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"></path></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5M9 13h6M9 17h4"></path></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"></circle><circle cx="12" cy="12" r="1.8"></circle><circle cx="19" cy="12" r="1.8"></circle></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"></path></symbol>
+  <symbol id="i-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"></path></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"></path><path d="M20 4v7h-7"></path></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"></path></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 17l.7 1.8L21.5 19.5l-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7z"></path></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"></path><path d="m14 6 4 4"></path></symbol>
+  <symbol id="i-brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 3 3h0a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3z"></path><path d="M15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-3 3h0a3 3 0 0 1-3-3"></path></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17.5v.01"></path></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></symbol>
+</svg>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="/"><span class="logo"><svg class="i"><use href="#i-doc"></use></svg></span>Paper <em>Parse</em></a>
+    <span class="space-tag">Your space</span>
+    <nav id="nav">
+      <a href="#convert" class="on">Convert</a>
+      <a href="#documents">Documents</a>
+      <a href="#help">How it works</a>
+      <a href="#memory">Memory</a>
+      <a href="/app/usage">Usage</a>
+    </nav>
+    <div class="auth" id="authbar"><button class="who" id="who" aria-haspopup="menu" aria-expanded="false"><span class="avatar">A</span><span>admin</span><svg class="i "><use href="#i-chev"></use></svg></button><div class="pop umenu" id="umenu" role="menu" hidden=""><div class="hd">Signed in as <b>admin</b></div><button class="mi" id="mpw" role="menuitem"><svg class="i "><use href="#i-pen"></use></svg>Change password</button><form class="pwform" id="pwform" hidden=""><input class="field" id="pold" type="password" placeholder="Current password" autocomplete="current-password" aria-label="Current password"><input class="field" id="pnew" type="password" placeholder="New password (6+ characters)" autocomplete="new-password" aria-label="New password"><button class="btn sm">Save</button><div class="err" id="pmsg"></div><div class="ok" id="pok"></div></form><div class="sep"></div><div class="hd">AI model for LaTeX edits</div><div class="mset"><select class="field" id="mrw" aria-label="AI model for LaTeX edits"><option value="">Default (Terra plans: Gemini writes, Haiku reads, DeepSeek builds)</option><option value="gpt-6.1-terra+team">Terra plans: Gemini writes, Haiku reads, DeepSeek builds</option><option value="gemini-3.8-flash+haiku">Gemini writes, Haiku reads</option><option value="gemini-3.8-flash+haiku+deepseek">Gemini writes, Haiku reads, DeepSeek builds</option><option value="gemini-3.8-flash">Gemini 3.8 Flash</option></select><div class="mhint" id="mrwhint">Writes an edit into the LaTeX when the text alone cannot place it.</div></div><div class="sep"></div><a class="mi" href="/app/usage" role="menuitem" style="text-decoration:none;color:inherit"><svg class="i "><use href="#i-doc"></use></svg>Usage and costs</a><a class="mi" href="/" role="menuitem" style="text-decoration:none;color:inherit"><svg class="i "><use href="#i-doc"></use></svg>Paper Parse home</a><button class="mi" id="aout" role="menuitem"><svg class="i "><use href="#i-redo"></use></svg>Log out</button></div></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="setup" id="pwwarn" hidden="">
+    <div class="t"><b>You are using the default password</b>
+      Anyone who can reach this app can sign in as <span id="pwuser">admin</span> / admin.
+      Choose your own password.</div>
+    <form id="pwwarnform">
+      <input class="field" id="wnew" type="password" placeholder="New password" autocomplete="new-password" aria-label="New password" required="" minlength="6">
+      <button class="btn warm">Change password</button>
+    </form>
+    <div class="err" id="wmsg" style="flex-basis:100%"></div>
+  </div>
+
+  <div class="setup" id="setup" hidden="">
+    <div class="t"><b>Welcome — create the admin account</b>
+      No one has signed in yet, so documents are shared. Create an admin to keep
+      them private; you can do this later.</div>
+    <form id="setupform">
+      <input class="field" id="sname" placeholder="Name" autocomplete="username" aria-label="Name" required="">
+      <input class="field" id="spw" type="password" placeholder="Password" autocomplete="new-password" aria-label="Password" required="">
+      <button class="btn warm">Create admin</button>
+    </form>
+    <div class="err" id="smsg" style="flex-basis:100%"></div>
+  </div>
+
+  <div class="hero">
+    <span class="eyebrow"><svg class="i"><use href="#i-spark"></use></svg> PDF · Word · LaTeX</span>
+    <h1>Turn any paper into a <span>clean, editable</span> document</h1>
+    <p class="lead">Drop in a PDF, Word file or LaTeX project. Read and correct it in the
+      browser, then export it to PDF, LaTeX or Word — equations, tables
+      and figures intact.</p>
+  </div>
+
+  <section id="convert">
+    <div class="drop" id="drop" role="button" tabindex="0" aria-label="Choose files to convert">
+      <div class="ico"><svg><use href="#i-up"></use></svg></div>
+      <div class="big">Drop papers here or <u id="pick">browse files</u></div>
+      <div class="sub">Several at once is fine. Scanned PDFs are read by OCR: check names and numbers against the pages.
+        Pages of your document are sent to Anthropic and OpenAI, under their API terms, to check
+        and correct the reading.</div>
+      <div class="fmts-in">
+        <span class="tag"><i style="background:#c2410c"></i>PDF</span>
+        <span class="tag"><i style="background:#2b5797"></i>Word .docx</span>
+        <span class="tag"><i style="background:#0f6b5f"></i>LaTeX .tex</span>
+        <span class="tag"><i style="background:#0f6b5f"></i>LaTeX project .zip</span>
+      </div>
+      <input type="file" id="file" multiple="" accept=".pdf,.docx,.tex,.zip,.tar.gz,.tgz,.tar">
+    </div>
+    <div class="opts">
+      <label class="toggle"><input type="checkbox" id="agents"><span class="knob"></span>
+        <span><b>AI review</b> — better structure for PDFs
+          <span class="hint" tabindex="0" aria-label="About AI review">?<span class="tip">A language
+          model checks headings and removes figure debris, and a vision model compares the
+          PDF pages with the result. Adds about a minute per PDF and uses API credits. Word
+          files get the heading check only; LaTeX needs none.</span></span></span></label>
+      <details class="adv"><summary>Advanced</summary>
+        <label>Word engine
+          <select id="docxeng">
+            <option value="python-docx">built-in (recommended)</option>
+            <option value="docling">Docling (experimental)</option>
+          </select></label>
+      </details>
+    </div>
+    <div class="queue" id="queue" aria-live="polite"></div>
+  </section>
+
+  <section id="documents">
+    <div class="sh">
+      <div><h2>Your documents</h2><p id="dcount">830 documents</p></div>
+      <div class="stats" id="stats" role="group" aria-label="Filter by status"><button class="stat all on" data-s="">All <b>830</b></button><button class="stat done" data-s="done"><i></i>Ready <b>816</b></button><button class="stat error" data-s="error"><i></i>Failed <b>14</b></button></div>
+    </div>
+    <div class="tools">
+      <label class="search"><span class="sr">Search documents</span>
+        <svg class="i"><use href="#i-search"></use></svg>
+        <input id="q" type="search" placeholder="Search by name" autocomplete="off">
+        <kbd>/</kbd></label>
+      <div class="seg" id="ffmt" role="group" aria-label="Format">
+        <button data-v="" class="on">All</button><button data-v="pdf">PDF</button>
+        <button data-v="docx">Word</button><button data-v="tex">LaTeX</button></div>
+      <select id="fstatus" aria-label="Status" hidden="">
+        <option value="">Any status</option><option value="done">Ready</option>
+        <option value="busy">Processing</option><option value="error">Failed</option></select>
+      <select id="sort" aria-label="Sort">
+        <option value="new">Newest first</option><option value="old">Oldest first</option>
+        <option value="name">Name A–Z</option></select>
+      <button class="ghost" id="rpall" title="Convert the documents shown again">
+        <svg class="i"><use href="#i-redo"></use></svg> Re-process…</button>
+    </div>
+    <div class="bulk" id="bulk" hidden="">
+      <span>Re-process the <b id="bulkn">0</b> documents shown</span>
+      <label class="toggle"><input type="checkbox" id="bulkai"><span class="knob"></span><span>with AI review</span></label>
+      <button class="btn sm" id="bulkgo">Start</button>
+      <button class="ghost" id="bulkno">Cancel</button>
+      <span class="prog" id="bulkmsg"></span>
+    </div>
+    <div class="count" id="shown"></div>
+    <div id="docs"><div class="day">Saturday, November 7</div><div class="doc" data-id="02-manuscript-89a881"><div class="row"><div class="kind docx">DOCX</div><div class="info"><a class="name" href="/docs/02-manuscript-89a881/paper.html" title="02_Manuscript.docx">02_Manuscript.docx</a><div class="meta"><span>single column</span><span>144 blocks</span><span>7:43 PM</span></div></div><div class="acts"><a class="btn sm open" href="/docs/02-manuscript-89a881/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/02-manuscript-89a881/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="day">Friday, November 6</div><div class="doc" data-id="2603-07753v1-2dd15f"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/2603-07753v1-2dd15f/paper.html" title="2603.07753v1.pdf">2603.07753v1.pdf</a><div class="meta"><span>single column</span><span>154 blocks</span><span>9:25 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2603-07753v1-2dd15f/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2603-07753v1-2dd15f/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="day">November 1</div><div class="doc" data-id="main-f51b35"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/main-f51b35/paper.html" title="main.pdf">main.pdf</a><div class="meta"><span>single column</span><span>205 blocks</span><span>7:13 AM</span></div></div><div class="acts"><a class="btn sm open" href="/docs/main-f51b35/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/main-f51b35/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="day">October 31</div><div class="doc" data-id="synctest-c1971e"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/synctest-c1971e/paper.html" title="synctest.pdf">synctest.pdf</a><div class="meta"><span>double column</span><span>58 blocks</span><span>4:18 PM</span></div></div><div class="acts"><a class="btn sm open" href="/docs/synctest-c1971e/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/synctest-c1971e/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="day">October 29</div><div class="doc" data-id="macros-2610-37601v1-tex-761ba0"><div class="row"><div class="kind tex">TEX</div><div class="info"><a class="name" href="/docs/macros-2610-37601v1-tex-761ba0/paper.html" title="macros-2610-37601v1-tex.zip">macros-2610-37601v1-tex.zip</a><div class="meta"><span>double column</span><span>102 blocks</span><span>11:40 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/macros-2610-37601v1-tex-761ba0/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/macros-2610-37601v1-tex-761ba0/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-37456v1-tex-733ecd"><div class="row"><div class="kind tex">TEX</div><div class="info"><a class="name" href="/docs/2610-37456v1-tex-733ecd/paper.html" title="2610-37456v1-tex.zip">2610-37456v1-tex.zip</a><div class="meta"><span>single column</span><span>181 blocks</span><span>11:37 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-37456v1-tex-733ecd/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-37456v1-tex-733ecd/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-37493v1-tex-72c94a"><div class="row"><div class="kind tex">TEX</div><div class="info"><a class="name" href="/docs/2610-37493v1-tex-72c94a/paper.html" title="2610-37493v1-tex.zip">2610-37493v1-tex.zip</a><div class="meta"><span>single column</span><span>374 blocks</span><span>11:36 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-37493v1-tex-72c94a/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-37493v1-tex-72c94a/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-36899v1-tex-7253f6"><div class="row"><div class="kind tex">TEX</div><div class="info"><a class="name" href="/docs/2610-36899v1-tex-7253f6/paper.html" title="2610-36899v1-tex.zip">2610-36899v1-tex.zip</a><div class="meta"><span>single column</span><span>283 blocks</span><span>11:36 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-36899v1-tex-7253f6/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-36899v1-tex-7253f6/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-36484v1-pdf-725385"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/2610-36484v1-pdf-725385/paper.html" title="2610-36484v1-pdf.pdf">2610-36484v1-pdf.pdf</a><div class="meta"><span>single column</span><span>229 blocks</span><span>11:36 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span><a class="qchk" href="/docs/2610-36484v1-pdf-725385/paper.html#report" title="Problems found when checking this conversion against the original — see the report"><svg class="i "><use href="#i-alert"></use></svg>1 to check</a></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-36484v1-pdf-725385/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-36484v1-pdf-725385/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-37577v1-pdf-6de51b"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/2610-37577v1-pdf-6de51b/paper.html" title="2610-37577v1-pdf.pdf">2610-37577v1-pdf.pdf</a><div class="meta"><span>double column</span><span>306 blocks</span><span>11:31 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span><a class="qchk" href="/docs/2610-37577v1-pdf-6de51b/paper.html#report" title="Problems found when checking this conversion against the original — see the report"><svg class="i "><use href="#i-alert"></use></svg>1 to check</a></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-37577v1-pdf-6de51b/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-37577v1-pdf-6de51b/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-37248v1-pdf-6d4864"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/2610-37248v1-pdf-6d4864/paper.html" title="2610-37248v1-pdf.pdf">2610-37248v1-pdf.pdf</a><div class="meta"><span>single column</span><span>119 blocks</span><span>11:30 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-37248v1-pdf-6d4864/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-37248v1-pdf-6d4864/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2026-10-16-26365755-pdf-6cf9b4"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/2026-10-16-26365755-pdf-6cf9b4/paper.html" title="2026-10-16-26365755-pdf.pdf">2026-10-16-26365755-pdf.pdf</a><div class="meta"><span>single column</span><span>163 blocks</span><span>11:30 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2026-10-16-26365755-pdf-6cf9b4/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2026-10-16-26365755-pdf-6cf9b4/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-37165v1-pdf-6c35db"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/2610-37165v1-pdf-6c35db/paper.html" title="2610-37165v1-pdf.pdf">2610-37165v1-pdf.pdf</a><div class="meta"><span>single column</span><span>1244 blocks</span><span>11:29 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-37165v1-pdf-6c35db/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-37165v1-pdf-6c35db/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2026-09-22-752727-pdf-6c359d"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/2026-09-22-752727-pdf-6c359d/paper.html" title="2026-09-22-752727-pdf.pdf">2026-09-22-752727-pdf.pdf</a><div class="meta"><span>single column</span><span>207 blocks</span><span>11:29 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2026-09-22-752727-pdf-6c359d/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2026-09-22-752727-pdf-6c359d/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-37644v1-tex-6c33f2"><div class="row"><div class="kind tex">TEX</div><div class="info"><a class="name" href="/docs/2610-37644v1-tex-6c33f2/paper.html" title="2610-37644v1-tex.zip">2610-37644v1-tex.zip</a><div class="meta"><span>single column</span><span>668 blocks</span><span>11:29 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-37644v1-tex-6c33f2/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-37644v1-tex-6c33f2/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-37625v1-pdf-6c0c28"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/2610-37625v1-pdf-6c0c28/paper.html" title="2610-37625v1-pdf.pdf">2610-37625v1-pdf.pdf</a><div class="meta"><span>single column</span><span>361 blocks</span><span>11:29 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-37625v1-pdf-6c0c28/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-37625v1-pdf-6c0c28/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-37552v1-tex-6b2189"><div class="row"><div class="kind tex">TEX</div><div class="info"><a class="name" href="/docs/2610-37552v1-tex-6b2189/paper.html" title="2610-37552v1-tex.zip">2610-37552v1-tex.zip</a><div class="meta"><span>single column</span><span>383 blocks</span><span>11:28 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span><a class="qchk" href="/docs/2610-37552v1-tex-6b2189/paper.html#report" title="Problems found when checking this conversion against the original — see the report"><svg class="i "><use href="#i-alert"></use></svg>2 to check</a></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-37552v1-tex-6b2189/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-37552v1-tex-6b2189/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-37501v1-pdf-6b214a"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/2610-37501v1-pdf-6b214a/paper.html" title="2610-37501v1-pdf.pdf">2610-37501v1-pdf.pdf</a><div class="meta"><span>single column</span><span>158 blocks</span><span>11:28 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span><a class="qchk" href="/docs/2610-37501v1-pdf-6b214a/paper.html#report" title="Problems found when checking this conversion against the original — see the report"><svg class="i "><use href="#i-alert"></use></svg>1 to check</a></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-37501v1-pdf-6b214a/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-37501v1-pdf-6b214a/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2026-10-14-756197-pdf-6af834"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/2026-10-14-756197-pdf-6af834/paper.html" title="2026-10-14-756197-pdf.pdf">2026-10-14-756197-pdf.pdf</a><div class="meta"><span>single column</span><span>157 blocks</span><span>11:28 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2026-10-14-756197-pdf-6af834/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2026-10-14-756197-pdf-6af834/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2026-10-14-26365410-pdf-6aa8c3"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/2026-10-14-26365410-pdf-6aa8c3/paper.html" title="2026-10-14-26365410-pdf.pdf">2026-10-14-26365410-pdf.pdf</a><div class="meta"><span>single column</span><span>92 blocks</span><span>11:27 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2026-10-14-26365410-pdf-6aa8c3/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2026-10-14-26365410-pdf-6aa8c3/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-37536v1-tex-6a819b"><div class="row"><div class="kind tex">TEX</div><div class="info"><a class="name" href="/docs/2610-37536v1-tex-6a819b/paper.html" title="2610-37536v1-tex.zip">2610-37536v1-tex.zip</a><div class="meta"><span>double column</span><span>112 blocks</span><span>11:27 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-37536v1-tex-6a819b/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-37536v1-tex-6a819b/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-37508v1-tex-6a0c3b"><div class="row"><div class="kind tex">TEX</div><div class="info"><a class="name" href="/docs/2610-37508v1-tex-6a0c3b/paper.html" title="2610-37508v1-tex.zip">2610-37508v1-tex.zip</a><div class="meta"><span>double column</span><span>224 blocks</span><span>11:27 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span><a class="qchk" href="/docs/2610-37508v1-tex-6a0c3b/paper.html#report" title="Problems found when checking this conversion against the original — see the report"><svg class="i "><use href="#i-alert"></use></svg>1 to check</a></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-37508v1-tex-6a0c3b/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-37508v1-tex-6a0c3b/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-37400v1-pdf-69bc60"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/2610-37400v1-pdf-69bc60/paper.html" title="2610-37400v1-pdf.pdf">2610-37400v1-pdf.pdf</a><div class="meta"><span>double column</span><span>178 blocks</span><span>11:26 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span><a class="qchk" href="/docs/2610-37400v1-pdf-69bc60/paper.html#report" title="Problems found when checking this conversion against the original — see the report"><svg class="i "><use href="#i-alert"></use></svg>10 to check</a></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-37400v1-pdf-69bc60/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-37400v1-pdf-69bc60/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-37024v1-pdf-6994ea"><div class="row"><div class="kind pdf">PDF</div><div class="info"><a class="name" href="/docs/2610-37024v1-pdf-6994ea/paper.html" title="2610-37024v1-pdf.pdf">2610-37024v1-pdf.pdf</a><div class="meta"><span>double column</span><span>81 blocks</span><span>11:26 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-37024v1-pdf-6994ea/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-37024v1-pdf-6994ea/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2610-36739v1-tex-696da4"><div class="row"><div class="kind tex">TEX</div><div class="info"><a class="name" href="/docs/2610-36739v1-tex-696da4/paper.html" title="2610-36739v1-tex.zip">2610-36739v1-tex.zip</a><div class="meta"><span>single column</span><span>777 blocks</span><span>11:26 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2610-36739v1-tex-696da4/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2610-36739v1-tex-696da4/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="t63ja-v1-docx-696d8b"><div class="row"><div class="kind docx">DOCX</div><div class="info"><a class="name" href="/docs/t63ja-v1-docx-696d8b/paper.html" title="t63ja_v1-docx.docx">t63ja_v1-docx.docx</a><div class="meta"><span>double column</span><span>94 blocks</span><span>11:26 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/t63ja-v1-docx-696d8b/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/t63ja-v1-docx-696d8b/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="cq4nf-v1-docx-694663"><div class="row"><div class="kind docx">DOCX</div><div class="info"><a class="name" href="/docs/cq4nf-v1-docx-694663/paper.html" title="cq4nf_v1-docx.docx">cq4nf_v1-docx.docx</a><div class="meta"><span>single column</span><span>38 blocks</span><span>11:26 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/cq4nf-v1-docx-694663/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/cq4nf-v1-docx-694663/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="n9cx7-v2-docx-691f3b"><div class="row"><div class="kind docx">DOCX</div><div class="info"><a class="name" href="/docs/n9cx7-v2-docx-691f3b/paper.html" title="n9cx7_v2-docx.docx">n9cx7_v2-docx.docx</a><div class="meta"><span>single column</span><span>181 blocks</span><span>11:26 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/n9cx7-v2-docx-691f3b/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/n9cx7-v2-docx-691f3b/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="n7a9s-v4-docx-68d0b0"><div class="row"><div class="kind docx">DOCX</div><div class="info"><a class="name" href="/docs/n7a9s-v4-docx-68d0b0/paper.html" title="n7a9s_v4-docx.docx">n7a9s_v4-docx.docx</a><div class="meta"><span>single column</span><span>120 blocks</span><span>11:25 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/n7a9s-v4-docx-68d0b0/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/n7a9s-v4-docx-68d0b0/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div><div class="doc" data-id="2fmpc-v3-docx-68d09f"><div class="row"><div class="kind docx">DOCX</div><div class="info"><a class="name" href="/docs/2fmpc-v3-docx-68d09f/paper.html" title="2fmpc_v3-docx.docx">2fmpc_v3-docx.docx</a><div class="meta"><span>single column</span><span>53 blocks</span><span>11:25 AM</span><span class="ai"><svg class="i "><use href="#i-spark"></use></svg> AI review</span></div></div><div class="acts"><a class="btn sm open" href="/docs/2fmpc-v3-docx-68d09f/paper.html"><svg class="i "><use href="#i-open"></use></svg>Open</a><a class="btn sm line texbtn" href="/docs/2fmpc-v3-docx-68d09f/latex" title="Edit the LaTeX with a live PDF"><svg class="i "><use href="#i-pen"></use></svg>LaTeX</a><button class="btn sm line x" aria-expanded="false"><svg class="i "><use href="#i-dl"></use></svg>Export</button><button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg class="i "><use href="#i-dots"></use></svg></button></div></div></div></div>
+    <button class="btn line more" id="more">Show more (800 left)</button>
+  </section>
+
+  <section id="help">
+    <div class="sh"><div><h2>How it works</h2><p>Three steps, the same for every format.</p></div></div>
+    <div class="how">
+      <div class="card">
+        <div class="n"><svg class="i"><use href="#i-up"></use></svg></div>
+        <h3>1. Convert</h3>
+        <p>Drop files above. Each one is parsed into headings, paragraphs, lists,
+          equations, figures and tables. A PDF takes 20–60 s (more with AI review);
+          Word and LaTeX take about a second.</p>
+        <p>To convert again — with AI review, or after an update — use
+          <b>Re-process</b> in a document's ⋯ menu.</p>
+      </div>
+      <div class="card">
+        <div class="n"><svg class="i"><use href="#i-pen"></use></svg></div>
+        <h3>2. Read and correct</h3>
+        <ul>
+          <li><b>Open</b> shows it in the reader: outline, search, themes, figure zoom.</li>
+          <li>For PDFs, click a page number to see the original page beside the text.</li>
+          <li><b>Edit</b> fixes text and block types; the original conversion is kept.</li>
+        </ul>
+      </div>
+      <div class="card" id="help-export">
+        <div class="n"><svg class="i"><use href="#i-dl"></use></svg></div>
+        <h3>3. Export</h3>
+        <p>Choose <b>Export</b>, a format, columns and a journal template
+          (article, IEEE, ACM, LNCS, Elsevier).</p>
+        <div class="outs">
+          <div><b>PDF</b>typeset with LaTeX</div><div><b>LaTeX</b>.zip with figures</div>
+          <div><b>Word</b>real equations</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="memory">
+    <details class="memwrap mem">
+      <summary><svg class="i"><use href="#i-brain"></use></svg> Memory
+        <small>— corrections and preferences reused across documents</small>
+        <svg class="i chev"><use href="#i-chev"></use></svg></summary>
+      <form id="memform">
+        <select name="kind" class="field" aria-label="Kind">
+          <option value="correction">correction</option>
+          <option value="preference">preference</option>
+          <option value="learning">learning</option>
+          <option value="note">note</option>
+        </select>
+        <input name="key" class="field" placeholder="key (e.g. heading-level)" size="22" aria-label="Key">
+        <input name="value" class="field" placeholder="value" aria-label="Value">
+        <button class="btn sm">Add</button>
+      </form>
+      <div id="mems"><div class="mrow" style="color:var(--faint)">Nothing remembered yet. Corrections you make while editing are kept here.</div></div>
+    </details>
+  </section>
+
+  <footer>
+    <span>Runs locally on your machine.</span>
+    <span>PDFs: Docling, with MinerU for doubtful formulas · Word and LaTeX parsed directly ·
+      AI review: Claude Haiku and Gemini Flash</span>
+  </footer>
+</main>
+
+<div class="dropall" id="dropall" hidden=""><div>Drop to convert</div></div>
+
+<script>
+const $ = (s, el) => (el || document).querySelector(s);
+const esc = s => { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; };
+const icon = (n, cls) => '<svg class="i ' + (cls || '') + '"><use href="#i-' + n + '"/></svg>';
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('pp.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('pp.' + k, JSON.stringify(v)); } catch (e) {} }
+};
+
+/* ---------- convert ---------- */
+const drop = $('#drop'), input = $('#file'), queueEl = $('#queue'), agentsEl = $('#agents');
+agentsEl.checked = store.get('agents', false);
+agentsEl.onchange = () => store.set('agents', agentsEl.checked);
+$('#docxeng').value = store.get('docxeng', 'python-docx');
+$('#docxeng').onchange = e => store.set('docxeng', e.target.value);
+drop.addEventListener('click', () => input.click());
+drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } });
+input.addEventListener('change', () => { enqueue(input.files); input.value = ''; });
+// drop anywhere on the page
+let dragDepth = 0;
+const hasFiles = ev => ev.dataTransfer && [...ev.dataTransfer.types].includes('Files');
+window.addEventListener('dragenter', ev => { if (!hasFiles(ev)) return; ev.preventDefault(); dragDepth++; $('#dropall').hidden = false; drop.classList.add('over'); });
+window.addEventListener('dragover', ev => { if (hasFiles(ev)) ev.preventDefault(); });
+window.addEventListener('dragleave', ev => { if (!hasFiles(ev)) return; if (--dragDepth <= 0) { dragDepth = 0; $('#dropall').hidden = true; drop.classList.remove('over'); } });
+window.addEventListener('drop', ev => {
+  if (!hasFiles(ev)) return; ev.preventDefault(); dragDepth = 0;
+  $('#dropall').hidden = true; drop.classList.remove('over'); enqueue(ev.dataTransfer.files);
+});
+
+const pending = [];
+let uploading = false;
+function setUp(row, cls, text) { row.className = 'up ' + cls; $('.st', row).textContent = text; }
+function enqueue(files) {
+  for (const f of files) {
+    const row = document.createElement('div');
+    row.className = 'up busy';
+    row.innerHTML = '<span class="dot"></span><span class="nm">' + esc(f.name) + '</span><span class="st">waiting</span>';
+    queueEl.prepend(row);
+    pending.push({ file: f, row });
+  }
+  pump();
+}
+async function pump() {
+  if (uploading) return;
+  uploading = true;
+  while (pending.length) {
+    const { file, row } = pending.shift();
+    setUp(row, 'busy', 'uploading…');
+    for (let tries = 0; ; tries++) {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('agents', agentsEl.checked ? '1' : '0');
+      fd.append('docx_engine', $('#docxeng').value);
+      try {
+        const r = await fetch('/api/upload', { method: 'POST', body: fd });
+        const d = await r.json().catch(() => ({}));
+        if (r.status === 429 && tries < 60) {        // server busy: wait
+          setUp(row, 'busy', 'waiting for a free slot…');
+          await new Promise(res => setTimeout(res, 5000));
+          continue;
+        }
+        if (!r.ok) throw new Error(d.error || ('upload failed (' + r.status + ')'));
+        setUp(row, 'ok', 'added — converting below');
+        refresh(true);
+        setTimeout(() => row.remove(), 8000);
+      } catch (e) {
+        setUp(row, 'bad', e.message);
+      }
+      break;
+    }
+  }
+  uploading = false;
+}
+
+/* ---------- documents ---------- */
+const FMT = [
+  ['pdf', 'PDF', 'typeset with LaTeX', '#c2410c', 'PDF'],
+  ['tex', 'LaTeX', '.zip: main.tex + figures', '#0f6b5f', 'TEX'],
+  ['docx', 'Word', '.docx with equations', '#2b5797', 'DOC']];
+const state = {
+  docs: [], sig: '', q: '', fmt: '', status: '', sort: store.get('sort', 'new'),
+  limit: 30, open: null, panel: 'x', sure: null, menu: null, rpAgents: store.get('rpAgents', true),
+  // (a format chosen before, no longer offered, falls back to PDF)
+  xfmt: FMT.some(f => f[0] === store.get('xfmt', 'pdf')) ? store.get('xfmt', 'pdf') : 'pdf',
+  xcols: store.get('xcols', 'auto'),
+  xtpl: store.get('xtpl', 'article'), loaded: false};
+$('#sort').value = state.sort;
+
+const isBusy = j => j.status === 'queued' || j.status === 'running';
+function filtered() {
+  const q = state.q.toLowerCase();
+  let list = state.docs.filter(j =>
+    (!q || j.name.toLowerCase().includes(q)) &&
+    (!state.fmt || j.fmt === state.fmt) &&
+    (!state.status || (state.status === 'busy' ? isBusy(j) : j.status === state.status)));
+  const by = { new: (a, b) => b.created - a.created, old: (a, b) => a.created - b.created,
+               name: (a, b) => a.name.localeCompare(b.name) }[state.sort];
+  return list.sort(by);
+}
+function statusLabel(j) {
+  if (j.status === 'done') return 'Ready';
+  if (j.status === 'error') return 'Failed';
+  if (j.status === 'running') return j.progress || 'Converting';
+  return 'Queued';
+}
+function dayLabel(ts) {
+  const d = new Date(ts * 1000), t = new Date();
+  const day = x => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const diff = Math.round((day(t) - day(d)) / 864e5);
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Yesterday';
+  return d.toLocaleDateString([], { weekday: diff < 7 ? 'long' : undefined, month: 'long', day: 'numeric',
+                                    year: d.getFullYear() === t.getFullYear() ? undefined : 'numeric' });
+}
+function exportPanel(j) {
+  const fm = FMT.map(([v, t, d, c, short]) =>
+    '<label class="fmt' + (state.xfmt === v ? ' sel' : '') + '"><input type="radio" name="xf-' + j.id +
+    '" value="' + v + '"' + (state.xfmt === v ? ' checked' : '') + '><span class="fi" style="background:' + c + '">' +
+    short + '</span><span><b>' + t + '</b>' + d + '</span></label>').join('');
+  const opt = (sel, list) => list.map(([v, t]) => '<option value="' + v + '"' + (sel === v ? ' selected' : '') + '>' + t + '</option>').join('');
+  return '<div class="xp"><h5>Export as</h5><div class="fmts">' + fm + '</div>' +
+    '<div class="xrow"><label>Columns <select class="xcols">' +
+    opt(state.xcols, [['auto', 'as in the source'], ['1', 'single'], ['2', 'double']]) +
+    '</select></label><label>Template <select class="xtpl">' +
+    opt(state.xtpl, [['article', 'plain article'], ['ieee', 'IEEE'], ['acm', 'ACM'],
+                     ['llncs', 'Springer LNCS'], ['elsevier', 'Elsevier']]) +
+    '</select></label><button class="btn xgo">' + icon('dl') + 'Download</button></div>' +
+    '<div class="xmsg"></div></div>';
+}
+function reprocessPanel(j) {
+  return '<div class="xp rp"><h5>Convert again</h5><p>Re-reads the original file' +
+    (j.status === 'error' ? ' (it failed last time)' : '') + '. The current result is replaced; ' +
+    'the link stays the same.</p><div class="xrow">' +
+    '<label class="toggle"><input type="checkbox" class="rpai"' + (state.rpAgents ? ' checked' : '') +
+    '><span class="knob"></span><span><b>AI review</b>' +
+    (j.fmt === 'pdf' ? ' — heading check, debris removal, page comparison' : j.fmt === 'docx' ? ' — heading check' : ' — not needed for LaTeX') +
+    '</span></label><button class="btn rgo">' + icon('redo') + 'Re-process</button></div>' +
+    '<div class="xmsg"></div></div>';
+}
+async function reprocess(id, force, ai) {
+  const r = await fetch('/api/docs/' + id + '/reprocess', { method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ agents: ai, discard_edits: !!force }) });
+  const d = await r.json().catch(() => ({}));
+  return { status: r.status, ...d };
+}
+function renderStats() {
+  const n = { '': state.docs.length, done: 0, busy: 0, error: 0 };
+  state.docs.forEach(j => { if (j.status === 'done') n.done++; else if (isBusy(j)) n.busy++; else if (j.status === 'error') n.error++; });
+  const items = [['', 'All'], ['done', 'Ready'], ['busy', 'Converting'], ['error', 'Failed']]
+    .filter(([k]) => k === '' || k === 'done' || n[k]);
+  $('#stats').innerHTML = state.docs.length ? items.map(([k, t]) =>
+    '<button class="stat ' + (k || 'all') + (state.status === k ? ' on' : '') + '" data-s="' + k + '">' +
+    (k ? '<i></i>' : '') + t + ' <b>' + n[k] + '</b></button>').join('') : '';
+}
+function docRow(j) {
+  const done = j.status === 'done', busy = isBusy(j);
+  const meta = [];
+  if (j.layout && j.layout !== '?') meta.push(j.layout + ' column');
+  if (j.blocks) meta.push(j.blocks + ' blocks');
+  meta.push(new Date(j.created * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
+  const ai = j.agents ? '<span class="ai">' + icon('spark') + ' AI review</span>' : '';
+  // conversion checks (tables against the original, the LaTeX export)
+  const qc = j.quality, qn = qc ? qc.errors || 0 : 0;
+  const chk = qn ? '<a class="qchk" href="/docs/' + j.id + '/paper.html#report" title="' +
+      'Problems found when checking this conversion against the original — see the report">' +
+      icon('alert') + qn + ' to check</a>' : '';
+  const note = j.note && !/^reused parse/.test(j.note)
+    ? '<div class="note' + (j.status === 'error' ? ' bad' : '') + '">' + esc(j.note.slice(0, 220)) + '</div>' : '';
+  const kind = { pdf: 'PDF', docx: 'DOCX', tex: 'TEX' }[j.fmt] || j.fmt.toUpperCase();
+  const name = done ? '<a class="name" href="/docs/' + j.id + '/paper.html" title="' + esc(j.name) + '">' + esc(j.name) + '</a>'
+                    : '<span class="name" title="' + esc(j.name) + '">' + esc(j.name) + '</span>';
+  const open = state.open === j.id, xo = open && state.panel === 'x', ro = open && state.panel === 'r';
+  const menu = state.menu === j.id ? '<div class="menu" role="menu">' +
+      '<button class="r" role="menuitem">' + icon('redo') + 'Re-process…</button>' +
+      '<button class="rm' + (state.sure === j.id ? ' sure' : '') + '" role="menuitem">' + icon('trash') +
+      (state.sure === j.id ? 'Click again to delete' : 'Delete') + '</button></div>' : '';
+  const acts = (done ? '<a class="btn sm open" href="/docs/' + j.id + '/paper.html">' + icon('open') + 'Open</a>' +
+      '<a class="btn sm line texbtn" href="/docs/' + j.id + '/latex" title="Edit the LaTeX with a live PDF">' + icon('pen') + 'LaTeX</a>' +
+      '<button class="btn sm line x" aria-expanded="' + xo + '">' + icon('dl') + 'Export</button>' : '') +
+    (busy ? '' : '<button class="iconbtn more-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="' +
+      (state.menu === j.id) + '">' + icon('dots') + '</button>' + menu);
+  return '<div class="doc' + (j.status === 'error' ? ' err' : '') + (state.menu === j.id ? ' menuopen' : '') +
+    '" data-id="' + j.id + '"><div class="row">' +
+    '<div class="kind ' + j.fmt + '">' + kind + '</div>' +
+    '<div class="info">' + name + '<div class="meta"><span>' + meta.join('</span><span>') + '</span>' + ai + chk + '</div>' + note +
+    (busy ? '<div class="bar"><i></i></div>' : '') + '</div>' +
+    // ready documents say so with their Open button; the others need a badge
+    (done ? '' : '<span class="status ' + j.status + '"><i></i>' + esc(statusLabel(j)) + '</span>') +
+    '<div class="acts">' + acts + '</div></div>' +
+    (xo && done ? exportPanel(j) : '') + (ro && !busy ? reprocessPanel(j) : '') + '</div>';
+}
+function render() {
+  if (!state.loaded) return;
+  renderStats();
+  const list = filtered(), docsEl = $('#docs');
+  const total = state.docs.length, busy = state.docs.filter(isBusy).length;
+  $('#dcount').textContent = total ? total + ' document' + (total === 1 ? '' : 's') +
+    (busy ? ' · ' + busy + ' converting now' : '') : 'Nothing here yet';
+  $('#shown').textContent = total && list.length !== total ? list.length + ' of ' + total + ' shown' : '';
+  if (!total) {
+    docsEl.innerHTML = '<div class="empty">' + icon('doc') + '<b>No documents yet</b>Drop a paper above to convert your first one.</div>';
+    $('#more').hidden = true; return;
+  }
+  if (!list.length) {
+    docsEl.innerHTML = '<div class="empty">' + icon('search') + '<b>Nothing matches</b>Try another name, format or status.</div>';
+    $('#more').hidden = true; return;
+  }
+  const shown = list.slice(0, state.limit), byDay = state.sort !== 'name';
+  let html = '', last = null;
+  for (const j of shown) {
+    if (byDay) { const d = dayLabel(j.created); if (d !== last) { html += '<div class="day">' + esc(d) + '</div>'; last = d; } }
+    html += docRow(j);
+  }
+  docsEl.innerHTML = html;
+  $('#more').hidden = list.length <= state.limit;
+  $('#more').textContent = 'Show more (' + (list.length - state.limit) + ' left)';
+}
+document.addEventListener('click', ev => {     // close an open ⋯ menu
+  if (state.menu && !ev.target.closest('.acts')) { state.menu = null; state.sure = null; render(); }
+});
+$('#stats').addEventListener('click', ev => {
+  const b = ev.target.closest('.stat'); if (!b) return;
+  state.status = b.dataset.s; $('#fstatus').value = state.status; state.limit = 30; render();
+});
+$('#docs').addEventListener('click', async ev => {
+  const doc = ev.target.closest('.doc'); if (!doc) return;
+  const id = doc.dataset.id, j = state.docs.find(d => d.id === id);
+  const toggle = kind => {
+    state.open = state.open === id && state.panel === kind ? null : id;
+    state.panel = kind; state.sure = null; state.menu = null; render();
+  };
+  if (ev.target.closest('.more-btn')) {
+    state.menu = state.menu === id ? null : id; state.sure = null; render(); return;
+  }
+  if (ev.target.closest('.x')) { toggle('x'); return; }
+  if (ev.target.closest('.r')) { toggle('r'); return; }
+  if (ev.target.closest('.rgo')) {
+    const force = ev.target.closest('.rgo').dataset.force === '1';
+    const msg = $('.xmsg', doc), btn = ev.target.closest('.rgo');
+    btn.disabled = true; msg.className = 'xmsg'; msg.textContent = 'Starting…';
+    const r = await reprocess(id, force, state.rpAgents);
+    btn.disabled = false;
+    if (r.status === 200) { state.open = null; refresh(true); return; }
+    msg.className = 'xmsg bad';
+    if (r.edited) {
+      msg.textContent = 'You have edited this document; re-processing replaces your edits. ';
+      btn.textContent = 'Replace my edits and re-process'; btn.dataset.force = '1';
+    } else if (r.status === 429) {
+      msg.textContent = 'Too many documents are converting right now; try again in a moment.';
+    } else msg.textContent = r.error || 'Could not start (' + r.status + ')';
+    return;
+  }
+  if (ev.target.closest('.rm')) {
+    if (state.sure !== id) { state.sure = id; render(); return; }
+    await fetch('/api/docs/' + id, { method: 'DELETE' });
+    state.sure = null; state.menu = null; refresh(true); return;
+  }
+  if (ev.target.closest('.xgo')) { download(doc, j); }
+});
+$('#docs').addEventListener('change', ev => {
+  const doc = ev.target.closest('.doc'); if (!doc) return;
+  if (ev.target.name && ev.target.name.startsWith('xf-')) {
+    state.xfmt = ev.target.value; store.set('xfmt', state.xfmt);
+    doc.querySelectorAll('.fmt').forEach(l => l.classList.toggle('sel', $('input', l).checked));
+  }
+  if (ev.target.classList.contains('rpai')) { state.rpAgents = ev.target.checked; store.set('rpAgents', state.rpAgents); }
+  if (ev.target.classList.contains('xcols')) { state.xcols = ev.target.value; store.set('xcols', state.xcols); }
+  if (ev.target.classList.contains('xtpl')) { state.xtpl = ev.target.value; store.set('xtpl', state.xtpl); }
+});
+async function download(doc, j) {
+  const msg = $('.xmsg', doc), btn = $('.xgo', doc);
+  const url = '/docs/' + j.id + '/export/' + state.xfmt + '?cols=' + state.xcols + '&template=' + state.xtpl;
+  btn.disabled = true; msg.className = 'xmsg';
+  msg.textContent = state.xfmt === 'pdf' ? 'Typesetting the PDF… (can take a few seconds)' : 'Preparing…';
+  try {
+    const r = await fetch(url);
+    if (!r.ok) {
+      const t = await r.text();
+      let err = t; try { err = JSON.parse(t).error || t; } catch (e) {}
+      throw new Error(err.slice(0, 300));
+    }
+    const blob = await r.blob();
+    const cd = r.headers.get('Content-Disposition') || '';
+    const m = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(cd);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = m ? decodeURIComponent(m[1]) : j.name.replace(/\.[^.]+$/, '') + '.' + state.xfmt;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    msg.textContent = 'Downloaded ' + a.download;
+  } catch (e) {
+    msg.className = 'xmsg bad'; msg.textContent = 'Export failed: ' + e.message;
+  }
+  btn.disabled = false;
+}
+
+$('#q').addEventListener('input', e => { state.q = e.target.value; state.limit = 30; render(); });
+$('#ffmt').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.fmt = b.dataset.v; state.limit = 30;
+  $('#ffmt').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  render();
+});
+$('#fstatus').onchange = e => { state.status = e.target.value; state.limit = 30; render(); };
+$('#sort').onchange = e => { state.sort = e.target.value; store.set('sort', state.sort); render(); };
+$('#more').onclick = () => { state.limit += 30; render(); };
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) {
+    e.preventDefault(); $('#q').focus(); $('#documents').scrollIntoView();
+  }
+  if (e.key === 'Escape') {
+    if (state.menu) { state.menu = null; state.sure = null; render(); }
+    if (document.activeElement === $('#q')) { $('#q').value = ''; state.q = ''; render(); }
+  }
+});
+
+/* ---------- bulk re-process ---------- */
+const bulk = { running: false, stop: false };
+const bulkTargets = () => filtered().filter(j => !isBusy(j));
+$('#rpall').onclick = () => {
+  $('#bulkn').textContent = bulkTargets().length;
+  $('#bulkai').checked = state.rpAgents;
+  $('#bulkmsg').textContent = '';
+  $('#bulk').hidden = false;
+};
+$('#bulkno').onclick = () => {
+  if (bulk.running) { bulk.stop = true; $('#bulkmsg').textContent = 'Stopping after the current one…'; }
+  else $('#bulk').hidden = true;
+};
+$('#bulkgo').onclick = async () => {
+  if (bulk.running) return;
+  const list = bulkTargets(), ai = $('#bulkai').checked;
+  if (!list.length) { $('#bulkmsg').textContent = 'Nothing to re-process.'; return; }
+  bulk.running = true; bulk.stop = false; $('#bulkgo').disabled = true;
+  let started = 0, edited = 0, failed = 0;
+  for (const j of list) {
+    if (bulk.stop) break;
+    for (;;) {
+      $('#bulkmsg').textContent = started + ' / ' + list.length + ' started…';
+      const r = await reprocess(j.id, false, ai);
+      if (r.status === 429) {                  // server full: wait for a slot
+        $('#bulkmsg').textContent = started + ' / ' + list.length + ' started · waiting for a free slot…';
+        await new Promise(res => setTimeout(res, 5000));
+        if (bulk.stop) break;
+        continue;
+      }
+      if (r.status === 200) started++;
+      else if (r.edited) edited++;
+      else failed++;
+      break;
+    }
+    refresh(true);
+  }
+  bulk.running = false; $('#bulkgo').disabled = false;
+  $('#bulkmsg').textContent = (bulk.stop ? 'Stopped. ' : 'Done. ') + started + ' re-processing' +
+    (edited ? ' · ' + edited + ' skipped (they have your edits — re-process them one by one)' : '') +
+    (failed ? ' · ' + failed + ' could not start' : '');
+};
+
+let timer = null;
+async function refresh(force) {
+  clearTimeout(timer);
+  try {
+    const r = await fetch('/api/docs');
+    if (r.ok) {
+      const d = await r.json();
+      const sig = JSON.stringify(d.docs.map(j => [j.id, j.status, j.progress, j.blocks, j.note]));
+      if (force || sig !== state.sig || !state.loaded) { state.docs = d.docs; state.sig = sig; state.loaded = true; render(); }
+    } else if (r.status === 401) {
+      $('#docs').innerHTML = '<div class="empty">' + icon('doc') + '<b>Sign in to see your documents</b>Use <i>Sign in</i> at the top right.</div>';
+    }
+  } catch (e) {}
+  const busy = state.docs.some(isBusy);
+  timer = setTimeout(refresh, busy ? 3000 : 15000);
+}
+
+/* the Memory link opens the memory, not only scrolls to its folded box */
+const memOpen = () => { $('#memory details').open = true; };
+document.querySelectorAll('a[href="#memory"]').forEach(a => a.addEventListener('click', memOpen));
+if (location.hash === '#memory') memOpen();
+window.addEventListener('hashchange', () => { if (location.hash === '#memory') memOpen(); });
+
+/* ---------- nav highlight ---------- */
+const links = [...document.querySelectorAll('nav a')];
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.hash === '#' + e.target.id));
+}), { rootMargin: '-45% 0px -50% 0px' });
+['convert', 'documents', 'help', 'memory'].forEach(id => io.observe(document.getElementById(id)));
+
+/* ---------- auth ---------- */
+async function post(url, body) {
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  return r.ok ? null : ((await r.json().catch(() => ({}))).error || 'failed');
+}
+async function auth() {
+  const bar = $('#authbar');
+  let st = {};
+  try { st = await (await fetch('/api/me')).json(); } catch (e) {}
+  if (st.setup) {             // first run: a welcome card instead of header fields
+    $('#setup').hidden = false;
+    $('#setupform').onsubmit = async ev => {
+      ev.preventDefault();
+      const e = await post('/api/setup', { name: $('#sname').value, password: $('#spw').value });
+      if (e) $('#smsg').textContent = e; else location.reload();
+    };
+    bar.innerHTML = '<span>Shared mode</span>';
+    return;
+  }
+  if (!st.user) {             // the space is for signed-in users
+    location.replace('/?signin=1');
+    return;
+  }
+  const n = st.user.name;
+  bar.innerHTML = '<button class="who" id="who" aria-haspopup="menu" aria-expanded="false">' +
+    '<span class="avatar">' + esc(n.slice(0, 1).toUpperCase()) + '</span><span>' + esc(n) + '</span>' +
+    icon('chev') + '</button>' +
+    '<div class="pop umenu" id="umenu" role="menu" hidden>' +
+    '<div class="hd">Signed in as <b>' + esc(n) + '</b></div>' +
+    '<button class="mi" id="mpw" role="menuitem">' + icon('pen') + 'Change password</button>' +
+    '<form class="pwform" id="pwform" hidden>' +
+    '<input class="field" id="pold" type="password" placeholder="Current password" autocomplete="current-password" aria-label="Current password">' +
+    '<input class="field" id="pnew" type="password" placeholder="New password (6+ characters)" autocomplete="new-password" aria-label="New password">' +
+    '<button class="btn sm">Save</button><div class="err" id="pmsg"></div><div class="ok" id="pok"></div></form>' +
+    '<div class="sep"></div>' +
+    '<div class="hd">AI model for LaTeX edits</div>' +
+    '<div class="mset"><select class="field" id="mrw" aria-label="AI model for LaTeX edits"></select>' +
+    '<div class="mhint" id="mrwhint">Writes an edit into the LaTeX when the text alone cannot place it.</div></div>' +
+    '<div class="sep"></div>' +
+    '<a class="mi" href="/app/usage" role="menuitem" style="text-decoration:none;color:inherit">' + icon('doc') + 'Usage and costs</a>' +
+    '<a class="mi" href="/" role="menuitem" style="text-decoration:none;color:inherit">' + icon('doc') + 'Paper Parse home</a>' +
+    '<button class="mi" id="aout" role="menuitem">' + icon('redo') + 'Log out</button></div>';
+  const um = $('#umenu');
+  $('#who').onclick = ev => { ev.stopPropagation(); um.hidden = !um.hidden; $('#who').setAttribute('aria-expanded', !um.hidden); };
+  document.addEventListener('click', ev => { if (!um.hidden && !ev.target.closest('#umenu')) { um.hidden = true; $('#who').setAttribute('aria-expanded', false); } });
+  $('#mpw').onclick = () => { $('#pwform').hidden = !$('#pwform').hidden; if (!$('#pwform').hidden) $('#pold').focus(); };
+  $('#pwform').onsubmit = async ev => {
+    ev.preventDefault(); $('#pmsg').textContent = ''; $('#pok').textContent = '';
+    const e = await post('/api/password', { old: $('#pold').value, new: $('#pnew').value });
+    if (e) $('#pmsg').textContent = e;
+    else { $('#pok').textContent = 'Password changed.'; $('#pold').value = $('#pnew').value = ''; $('#pwwarn').hidden = true; }
+  };
+  // the model that writes reader edits into the LaTeX (settings: per account)
+  const mrw = $('#mrw'), mhint = $('#mrwhint');
+  const showModels = d => {
+    const lab = id => ((d.models || []).find(m => m.id === id) || {}).label || id;
+    mrw.innerHTML = '<option value="">Default (' + esc(lab(d.tex_rewrite_default) || 'none') + ')</option>' +
+      (d.models || []).map(m => '<option value="' + esc(m.id) + '">' + esc(m.label) + '</option>').join('');
+    mrw.value = d.tex_rewrite_model || '';
+    mrw.disabled = !(d.models || []).length;
+  };
+  fetch('/api/settings').then(r => r.ok ? r.json() : null).then(d => { if (d) showModels(d); }).catch(() => {});
+  mrw.onchange = async () => {
+    const r = await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tex_rewrite_model: mrw.value }) }).catch(() => null);
+    const d = r ? await r.json().catch(() => ({})) : { error: 'could not save' };
+    if (d.error) { mhint.textContent = d.error; return; }
+    showModels(d);
+    mhint.textContent = 'Saved: ' + (((d.models || []).find(m => m.id === d.tex_rewrite_in_use) || {}).label || d.tex_rewrite_in_use) + ' writes your LaTeX edits.';
+  };
+  $('#aout').onclick = async () => { await fetch('/api/logout', { method: 'POST' }); location.href = '/'; };
+  if (st.default_login) {        // still admin / admin: nudge, with a form right there
+    $('#pwuser').textContent = st.default_user || n;
+    $('#pwwarn').hidden = false;
+    $('#pwwarnform').onsubmit = async ev => {
+      ev.preventDefault();
+      const e = await post('/api/password', { from_default: true, new: $('#wnew').value });
+      if (e) $('#wmsg').textContent = e; else $('#pwwarn').hidden = true;
+    };
+  }
+}
+
+/* ---------- memory ---------- */
+async function loadmem() {
+  const el = $('#mems');
+  const r = await fetch('/api/memory').catch(() => null);
+  if (!r || !r.ok) { el.innerHTML = ''; return; }
+  const d = await r.json();
+  el.innerHTML = d.memories.length ? d.memories.map(m =>
+    '<div class="mrow"><span class="k">' + esc(m.kind) + '</span><span><b>' + esc(m.key) +
+    '</b> — ' + esc(m.value) + '</span><button class="iconbtn del" data-id="' + m.id + '" title="Remove" aria-label="Remove">' +
+    icon('trash') + '</button></div>').join('')
+    : '<div class="mrow" style="color:var(--faint)">Nothing remembered yet. Corrections you make while editing are kept here.</div>';
+}
+$('#mems').addEventListener('click', async e => {
+  const b = e.target.closest('.del'); if (!b) return;
+  await fetch('/api/memory/' + b.dataset.id, { method: 'DELETE' }); loadmem();
+});
+$('#memform').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const f = ev.target;
+  await fetch('/api/memory', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ kind: f.kind.value, key: f.key.value, value: f.value.value }) });
+  f.key.value = ''; f.value.value = ''; loadmem();
+});
+
+auth(); refresh(true); loadmem();
+</script>
+
+
+</body></html>

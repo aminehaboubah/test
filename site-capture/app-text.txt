@@ -1,0 +1,350 @@
+Paper
+Parse
+Your space
+Convert
+Documents
+How it works
+Memory
+Usage
+A
+admin
+PDF · WORD · LATEX
+Turn any paper into a clean, editable document
+
+Drop in a PDF, Word file or LaTeX project. Read and correct it in the browser, then export it to PDF, LaTeX or Word — equations, tables and figures intact.
+
+Drop papers here or browse files
+Several at once is fine. Scanned PDFs are read by OCR: check names and numbers against the pages. Pages of your document are sent to Anthropic and OpenAI, under their API terms, to check and correct the reading.
+PDF
+Word .docx
+LaTeX .tex
+LaTeX project .zip
+AI review — better structure for PDFs ?
+Advanced
+Your documents
+
+830 documents
+
+All
+830
+Ready
+816
+Failed
+14
+Search documents
+/
+All
+PDF
+Word
+LaTeX
+Newest first
+Oldest first
+Name A–Z
+ Re-process…
+SATURDAY, NOVEMBER 7
+DOCX
+02_Manuscript.docx
+single column
+144 blocks
+7:43 PM
+Open
+LaTeX
+Export
+FRIDAY, NOVEMBER 6
+PDF
+2603.07753v1.pdf
+single column
+154 blocks
+9:25 AM
+ AI review
+Open
+LaTeX
+Export
+NOVEMBER 1
+PDF
+main.pdf
+single column
+205 blocks
+7:13 AM
+Open
+LaTeX
+Export
+OCTOBER 31
+PDF
+synctest.pdf
+double column
+58 blocks
+4:18 PM
+Open
+LaTeX
+Export
+OCTOBER 29
+TEX
+macros-2610-37601v1-tex.zip
+double column
+102 blocks
+11:40 AM
+ AI review
+Open
+LaTeX
+Export
+TEX
+2610-37456v1-tex.zip
+single column
+181 blocks
+11:37 AM
+ AI review
+Open
+LaTeX
+Export
+TEX
+2610-37493v1-tex.zip
+single column
+374 blocks
+11:36 AM
+ AI review
+Open
+LaTeX
+Export
+TEX
+2610-36899v1-tex.zip
+single column
+283 blocks
+11:36 AM
+ AI review
+Open
+LaTeX
+Export
+PDF
+2610-36484v1-pdf.pdf
+single column
+229 blocks
+11:36 AM
+ AI review
+1 to check
+Open
+LaTeX
+Export
+PDF
+2610-37577v1-pdf.pdf
+double column
+306 blocks
+11:31 AM
+ AI review
+1 to check
+Open
+LaTeX
+Export
+PDF
+2610-37248v1-pdf.pdf
+single column
+119 blocks
+11:30 AM
+ AI review
+Open
+LaTeX
+Export
+PDF
+2026-10-16-26365755-pdf.pdf
+single column
+163 blocks
+11:30 AM
+ AI review
+Open
+LaTeX
+Export
+PDF
+2610-37165v1-pdf.pdf
+single column
+1244 blocks
+11:29 AM
+ AI review
+Open
+LaTeX
+Export
+PDF
+2026-09-22-752727-pdf.pdf
+single column
+207 blocks
+11:29 AM
+ AI review
+Open
+LaTeX
+Export
+TEX
+2610-37644v1-tex.zip
+single column
+668 blocks
+11:29 AM
+ AI review
+Open
+LaTeX
+Export
+PDF
+2610-37625v1-pdf.pdf
+single column
+361 blocks
+11:29 AM
+ AI review
+Open
+LaTeX
+Export
+TEX
+2610-37552v1-tex.zip
+single column
+383 blocks
+11:28 AM
+ AI review
+2 to check
+Open
+LaTeX
+Export
+PDF
+2610-37501v1-pdf.pdf
+single column
+158 blocks
+11:28 AM
+ AI review
+1 to check
+Open
+LaTeX
+Export
+PDF
+2026-10-14-756197-pdf.pdf
+single column
+157 blocks
+11:28 AM
+ AI review
+Open
+LaTeX
+Export
+PDF
+2026-10-14-26365410-pdf.pdf
+single column
+92 blocks
+11:27 AM
+ AI review
+Open
+LaTeX
+Export
+TEX
+2610-37536v1-tex.zip
+double column
+112 blocks
+11:27 AM
+ AI review
+Open
+LaTeX
+Export
+TEX
+2610-37508v1-tex.zip
+double column
+224 blocks
+11:27 AM
+ AI review
+1 to check
+Open
+LaTeX
+Export
+PDF
+2610-37400v1-pdf.pdf
+double column
+178 blocks
+11:26 AM
+ AI review
+10 to check
+Open
+LaTeX
+Export
+PDF
+2610-37024v1-pdf.pdf
+double column
+81 blocks
+11:26 AM
+ AI review
+Open
+LaTeX
+Export
+TEX
+2610-36739v1-tex.zip
+single column
+777 blocks
+11:26 AM
+ AI review
+Open
+LaTeX
+Export
+DOCX
+t63ja_v1-docx.docx
+double column
+94 blocks
+11:26 AM
+ AI review
+Open
+LaTeX
+Export
+DOCX
+cq4nf_v1-docx.docx
+single column
+38 blocks
+11:26 AM
+ AI review
+Open
+LaTeX
+Export
+DOCX
+n9cx7_v2-docx.docx
+single column
+181 blocks
+11:26 AM
+ AI review
+Open
+LaTeX
+Export
+DOCX
+n7a9s_v4-docx.docx
+single column
+120 blocks
+11:25 AM
+ AI review
+Open
+LaTeX
+Export
+DOCX
+2fmpc_v3-docx.docx
+single column
+53 blocks
+11:25 AM
+ AI review
+Open
+LaTeX
+Export
+Show more (800 left)
+How it works
+
+Three steps, the same for every format.
+
+1. Convert
+
+Drop files above. Each one is parsed into headings, paragraphs, lists, equations, figures and tables. A PDF takes 20–60 s (more with AI review); Word and LaTeX take about a second.
+
+To convert again — with AI review, or after an update — use Re-process in a document's ⋯ menu.
+
+2. Read and correct
+Open shows it in the reader: outline, search, themes, figure zoom.
+For PDFs, click a page number to see the original page beside the text.
+Edit fixes text and block types; the original conversion is kept.
+3. Export
+
+Choose Export, a format, columns and a journal template (article, IEEE, ACM, LNCS, Elsevier).
+
+PDF
+typeset with LaTeX
+LaTeX
+.zip with figures
+Word
+real equations
+Memory
+— corrections and preferences reused across documents
+Runs locally on your machine.
+PDFs: Docling, with MinerU for doubtful formulas · Word and LaTeX parsed directly · AI review: Claude Haiku and Gemini Flash

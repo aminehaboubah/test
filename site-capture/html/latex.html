@@ -1,0 +1,2221 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2610-37400v1-pdf.pdf — LaTeX — Paper Parse</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="/static/snip.css">
+<link rel="stylesheet" href="/static/reviewer.css">
+<link rel="stylesheet" href="/static/edits_panel.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap">
+<style>
+  :root{
+    --bg:#f8f6f1; --bg2:#efebe3; --card:#ffffff; --ink:#1c1917; --muted:#5f5750; --faint:#948b81;
+    --rule:#e6e0d6; --rule2:#d9d1c4; --teal:#0f5c5c; --teal-d:#0b4545; --teal-l:#e8f2ef; --teal-m:#bfd9d2;
+    --rust:#b45309; --rust-l:#fdf1e3; --red:#b42318; --red-l:#fdecea; --amber:#a15c07; --amber-l:#fff5e0;
+    --code-bg:#fffdf9; --sel:#d7ebe6; --pdf-bg:#e9e5dd;
+    --ai:#6d4fd8; --ai-soft:color-mix(in srgb,var(--ai) 12%,transparent);
+    --shadow:0 1px 2px rgba(28,25,23,.05),0 6px 22px rgba(28,25,23,.1);
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    --serif:Fraunces,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --prose:"Source Serif 4",Charter,"Iowan Old Style","Palatino Linotype",Georgia,serif;
+    /* syntax */
+    --k:#0f5c5c; --t:#9a3412; --c:#948b81; --m:#7c3aed; --s:#2b5797; --b:#b45309;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#141311; --bg2:#1c1a17; --card:#1a1816; --ink:#ece8e2; --muted:#b5ada3; --faint:#857d74;
+    --rule:#2d2a26; --rule2:#3b3732; --teal:#4fb3a5; --teal-d:#79c9bd; --teal-l:#16302c; --teal-m:#2a5650;
+    --rust:#e08a3c; --rust-l:#2e2116; --red:#f0857a; --red-l:#33191a; --amber:#e6a23c; --amber-l:#2c2312;
+    --code-bg:#161513; --sel:#24433e; --pdf-bg:#0d0c0b; --ai:#a78bfa;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 22px rgba(0,0,0,.4);
+    --k:#5fc4b6; --t:#f0a35e; --c:#7d756c; --m:#b69cf7; --s:#8ab4f8; --b:#e6a23c;
+  }}
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{height:100%; margin:0}
+  body{font-family:var(--sans); color:var(--ink); background:var(--bg); display:flex; flex-direction:column;
+       overflow:hidden; -webkit-font-smoothing:antialiased}
+  button,input,select,textarea{font:inherit; color:inherit}
+  a{color:var(--teal)}
+  :focus-visible{outline:2px solid var(--teal); outline-offset:1px; border-radius:6px}
+  svg.i{width:1.05em; height:1.05em; vertical-align:-.17em; flex:none}
+
+  /* top bar */
+  .top{display:flex; align-items:center; gap:.6rem; height:3.3rem; padding:0 .8rem; flex:none;
+       border-bottom:1px solid var(--rule); background:var(--card)}
+  .brand{display:flex; align-items:center; gap:.45rem; color:var(--ink); text-decoration:none; font:600 .98rem var(--serif)}
+  .logo{width:1.75rem; height:1.75rem; border-radius:8px; color:#fff; display:grid; place-items:center;
+        background:linear-gradient(145deg,#157070,#0b4545); box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+  @media (prefers-color-scheme:dark){.logo{color:#0f1a19}}
+  .crumb{display:flex; align-items:center; gap:.45rem; min-width:0; font-size:.88rem; color:var(--muted)}
+  .crumb a{color:var(--muted); text-decoration:none} .crumb a:hover{color:var(--ink)}
+  .crumb b{color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:28vw}
+  .badge{font-size:.7rem; font-weight:700; padding:.12rem .45rem; border-radius:6px; background:var(--amber-l); color:var(--amber);
+         white-space:nowrap}
+  .grow{flex:1}
+  .status{font-size:.8rem; color:var(--faint); white-space:nowrap; display:flex; gap:.4rem; align-items:center}
+  .status .dot{width:.5rem; height:.5rem; border-radius:50%; background:var(--teal)}
+  .status.busy .dot{background:var(--amber); animation:pulse 1s infinite}
+  .status.bad .dot{background:var(--red)}
+  @keyframes pulse{50%{opacity:.3}}
+  .btn{display:inline-flex; align-items:center; gap:.4rem; border:1px solid var(--rule2); background:var(--card);
+       border-radius:9px; padding:.38rem .7rem; font-size:.84rem; font-weight:500; cursor:pointer; white-space:nowrap;
+       text-decoration:none; color:var(--ink)}
+  .btn:hover{border-color:var(--teal); color:var(--teal)}
+  .btn.primary{background:linear-gradient(180deg,#137070,#0f5c5c); border-color:var(--teal); color:#fff; font-weight:600;
+       box-shadow:0 1px 0 rgba(255,255,255,.15) inset, 0 2px 8px color-mix(in srgb,var(--teal) 30%,transparent)}
+  .btn.primary:hover{background:var(--teal-d); color:#fff}
+  @media (prefers-color-scheme:dark){.btn.primary,.btn.primary:hover{color:#0e1716}}
+  .btn.on{background:var(--teal-l); border-color:var(--teal-m); color:var(--teal)}
+  /* Reader | LaTeX: the view open bright, the other quiet (the reader's bar has the same pair) */
+  .modes{display:inline-flex; align-items:center; gap:2px; padding:2px; flex:none; border:1px solid var(--rule2);
+       border-radius:10px; background:var(--card)}
+  .mode{display:inline-flex; align-items:center; gap:.35rem; font:500 .8rem var(--sans); color:var(--faint);
+       text-decoration:none; white-space:nowrap; padding:.3rem .65rem; border-radius:7px}
+  .mode .i{width:14px; height:14px}
+  a.mode[href]:hover{color:var(--ink); background:var(--bg2)}
+  .mode.on{background:var(--teal); color:var(--card); font-weight:600; cursor:default}
+  .btn:disabled{opacity:.5; cursor:default}
+  .btn kbd{font:600 .66rem var(--sans); opacity:.7; border:1px solid currentColor; border-radius:4px; padding:0 .25rem}
+  .tgl{display:flex; align-items:center; gap:.35rem; font-size:.8rem; color:var(--muted); cursor:pointer; user-select:none}
+  .tgl input{accent-color:var(--teal)}
+  .menuw{position:relative}
+  .menu{position:absolute; right:0; top:calc(100% + .35rem); z-index:30; min-width:13rem; background:var(--card);
+        border:1px solid var(--rule); border-radius:12px; box-shadow:var(--shadow); padding:.3rem}
+  .menu a,.menu button{display:flex; gap:.55rem; align-items:center; width:100%; border:0; background:none; text-align:left;
+        padding:.5rem .65rem; border-radius:8px; font-size:.86rem; color:var(--ink); text-decoration:none; cursor:pointer}
+  .menu a:hover,.menu button:hover{background:var(--bg2)}
+
+  .banner{flex:none; display:flex; gap:.8rem; align-items:center; padding:.5rem 1rem; font-size:.84rem;
+          background:var(--amber-l); color:var(--muted); border-bottom:1px solid var(--rule)}
+  .banner b{color:var(--ink)}
+  .banner.bad{background:var(--red-l)}
+  .banner .btn{margin-left:auto}
+
+  /* layout */
+  .main{flex:1; display:grid; grid-template-columns:var(--side,15rem) minmax(0,1fr) 6px minmax(0,var(--pdfw,1fr));
+        min-height:0}
+  .main.noside{--side:0px}
+  .side{border-right:1px solid var(--rule); background:var(--card); overflow:auto; min-width:0; font-size:.86rem}
+  /* each pane in its own column: the files panel hidden keeps its (0px) cell. With display:none the
+     editor, the gutter and the PDF moved one column left -- the editor 0px wide, the PDF in the 6px gutter */
+  .side{grid-column:1} .ed{grid-column:2} .gut{grid-column:3} .pdf{grid-column:4}
+  .main.noside .side{visibility:hidden; overflow:hidden; border-right:0}
+  .sh{display:flex; align-items:center; justify-content:space-between; padding:.75rem .8rem .35rem;
+      font-size:.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--faint)}
+  .sh button{border:0; background:none; color:var(--faint); cursor:pointer; border-radius:6px; padding:.1rem .3rem; font-size:1rem; line-height:1}
+  .sh button:hover{color:var(--teal); background:var(--bg2)}
+  /* Files and Outline fold from their headings (remembered) */
+  .sh .shx{display:inline-flex; align-items:center; gap:.3rem; margin-left:-.3rem; padding:.15rem .35rem .15rem .2rem; font:inherit;
+       letter-spacing:inherit; text-transform:inherit; color:inherit; border-radius:6px}
+  .sh .shx:hover{color:var(--ink); background:var(--bg2)}
+  .shx svg{width:12px; height:12px; flex:none; transition:transform .15s}
+  .shx[aria-expanded=false] svg{transform:rotate(-90deg)}
+  .shn{font-weight:600; letter-spacing:.02em; color:var(--faint); margin-left:.15rem}
+  .shx[aria-expanded=true] .shn{display:none}
+  .tree[hidden], .outline[hidden]{display:none}
+  .tree a{display:flex; gap:.5rem; align-items:center; padding:.3rem .8rem; color:var(--muted); text-decoration:none;
+          white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border-left:2px solid transparent}
+  .tree a:hover{background:var(--bg2); color:var(--ink)}
+  .tree a.cur{background:var(--teal-l); color:var(--teal); border-left-color:var(--teal); font-weight:600}
+  .tree a.ro{opacity:.6; cursor:default}
+  .tree a .main-dot{margin-left:auto; font-size:.62rem; font-weight:700; color:var(--teal); background:var(--teal-l);
+          border-radius:4px; padding:0 .3rem}
+  .tree .fp{display:flex; flex:0 1 auto; min-width:0}
+  .tree .fdir{flex:0 100 auto; min-width:1.4em; overflow:hidden; text-overflow:ellipsis; color:var(--faint)}
+  .tree .fname{display:flex; flex:0 1 auto; min-width:0}
+  .tree .fstem{min-width:0; overflow:hidden; text-overflow:ellipsis} .tree .fext{flex:none}
+  .fi{width:1.35rem; height:1rem; border-radius:3px; font:800 .5rem/1rem var(--sans); text-align:center; color:#fff; flex:none}
+  .outline a{display:block; padding:.22rem .8rem; color:var(--muted); text-decoration:none; white-space:nowrap;
+          overflow:hidden; text-overflow:ellipsis; font-size:.83rem}
+  .outline a:hover{color:var(--ink); background:var(--bg2)}
+  .outline a.l2{padding-left:1.6rem} .outline a.l3{padding-left:2.4rem; font-size:.8rem}
+  .outline a.meta{color:var(--faint); font-style:italic}
+  .empty{padding:.4rem .8rem; color:var(--faint); font-size:.8rem}
+
+  .ed{display:flex; flex-direction:column; min-width:0; min-height:0; background:var(--code-bg)}
+  .tabs{display:flex; gap:.1rem; align-items:flex-end; padding:.35rem .5rem 0; border-bottom:1px solid var(--rule);
+        background:var(--card); overflow-x:auto; flex:none}
+  .tab{display:flex; gap:.4rem; align-items:center; padding:.4rem .7rem; border:1px solid transparent; border-bottom:0;
+       border-radius:9px 9px 0 0; font-size:.82rem; color:var(--muted); cursor:pointer; white-space:nowrap; background:none}
+  .tab.cur{background:var(--code-bg); border-color:var(--rule); color:var(--ink); margin-bottom:-1px}
+  .tab .dirty{width:.45rem; height:.45rem; border-radius:50%; background:var(--rust)}
+  .tab .x{opacity:.5; font-size:.9rem} .tab .x:hover{opacity:1}
+  .tools2{margin-left:auto; display:flex; gap:.3rem; padding-bottom:.3rem}
+  .cmwrap{flex:1; min-height:0; position:relative}
+  .CodeMirror{height:100%; font:13.5px/1.65 var(--mono); background:var(--code-bg); color:var(--ink); font-variant-ligatures:none}
+  .CodeMirror-gutters{background:var(--code-bg); border-right:1px solid var(--rule)}
+  .CodeMirror-linenumber{color:var(--faint)}
+  .CodeMirror-cursor{border-left:2px solid var(--teal)}
+  .CodeMirror-selected,.CodeMirror-focused .CodeMirror-selected{background:var(--sel) !important}
+  .CodeMirror-activeline-background{background:color-mix(in srgb,var(--teal) 5%,transparent)}
+  .CodeMirror-matchingbracket{color:var(--teal) !important; background:var(--teal-l); outline:0}
+  /* stex tokens, over CodeMirror's default theme */
+  .cm-s-default .cm-tag,.cm-s-default .cm-keyword{color:var(--k)} .cm-s-default .cm-keyword{font-weight:600}
+  .cm-s-default .cm-bracket{color:var(--b)} .cm-s-default .cm-comment{color:var(--c); font-style:italic}
+  .cm-s-default .cm-atom,.cm-s-default .cm-number{color:var(--m)}
+  .cm-s-default .cm-string,.cm-s-default .cm-string-2{color:var(--s)}
+  .cm-s-default .cm-builtin{color:var(--t)} .cm-s-default .cm-variable-2{color:var(--m)}
+  .cm-s-default .cm-def,.cm-s-default .cm-variable,.cm-s-default .cm-variable-3{color:var(--s)}
+  .cm-s-default .cm-error{color:var(--red); background:none}
+  .errline{background:color-mix(in srgb,var(--red) 10%,transparent)}
+  .warnline{background:color-mix(in srgb,var(--amber) 9%,transparent)}
+  .flash{animation:flash 1.4s ease-out}
+  @keyframes flash{0%{background:color-mix(in srgb,var(--teal) 30%,transparent)}100%{background:transparent}}
+  .gm{width:.6rem; height:.6rem; border-radius:50%; margin:.35rem 0 0 .15rem}
+  .gm.error{background:var(--red)} .gm.warning{background:var(--amber)}
+  textarea.fallback{width:100%; height:100%; border:0; resize:none; padding:1rem; font:13.5px/1.6 var(--mono);
+          background:var(--code-bg); color:var(--ink); outline:0}
+
+  /* problems */
+  .probs{flex:none; border-top:1px solid var(--rule); background:var(--card); max-height:40%; display:flex; flex-direction:column}
+  .probs header{display:flex; gap:.6rem; align-items:center; padding:.4rem .8rem; font-size:.8rem; cursor:pointer;
+       user-select:none; color:var(--muted)}
+  .probs header b{color:var(--ink)}
+  .cnt{font-size:.72rem; font-weight:700; border-radius:999px; padding:.05rem .45rem}
+  .cnt.e{background:var(--red-l); color:var(--red)} .cnt.w{background:var(--amber-l); color:var(--amber)}
+  .cnt.i{background:var(--bg2); color:var(--faint)}
+  .probs .list{overflow:auto; border-top:1px solid var(--rule)}
+  .pr{display:flex; gap:.6rem; align-items:flex-start; padding:.45rem .8rem; font-size:.82rem; border-bottom:1px solid var(--rule);
+      cursor:pointer}
+  .pr:hover{background:var(--bg2)}
+  .pr .lv{flex:none; width:.55rem; height:.55rem; border-radius:50%; margin-top:.35rem}
+  .pr.error .lv{background:var(--red)} .pr.warning .lv{background:var(--amber)} .pr.info .lv{background:var(--faint)}
+  .pr .loc{font:600 .76rem var(--mono); color:var(--faint); white-space:nowrap}
+  .pr .msg{flex:1; color:var(--ink)} .pr .ctx{display:block; font:.75rem var(--mono); color:var(--faint); margin-top:.1rem}
+  .pr .fix{flex:none; border:1px solid var(--rule2); background:var(--card); border-radius:7px; font-size:.74rem;
+      padding:.15rem .5rem; cursor:pointer; color:var(--teal)}
+  .pr .fix:hover{border-color:var(--teal)}
+
+  .gut{cursor:col-resize; background:var(--rule); transition:background .15s}
+  .gut:hover,.gut.drag{background:var(--teal-m)}
+
+  /* pdf */
+  .pdf{display:flex; flex-direction:column; min-width:0; min-height:0; background:var(--pdf-bg); position:relative}
+  .pbar{display:flex; gap:.35rem; align-items:center; padding:.35rem .6rem; border-bottom:1px solid var(--rule);
+        background:var(--card); flex:none; font-size:.8rem; color:var(--muted)}
+  .pbar .btn{padding:.28rem .55rem}
+  .pbar .pg{min-width:4.5rem; text-align:center; font-variant-numeric:tabular-nums}
+  .pages{flex:1; overflow:auto; padding:1rem; display:flex; flex-direction:column; align-items:center; gap:.9rem}
+  .page{position:relative; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.15),0 8px 24px rgba(0,0,0,.08); flex:none}
+  .page canvas{display:block}
+  /* pdf.js text layer: invisible text over the page image, to select and copy */
+  .textLayer{position:absolute; inset:0; overflow:hidden; line-height:1; text-align:initial;
+             -webkit-text-size-adjust:none; text-size-adjust:none; forced-color-adjust:none; z-index:2}
+  .textLayer :is(span,br){color:transparent; position:absolute; white-space:pre; cursor:text; transform-origin:0% 0%}
+  .textLayer span.markedContent{top:0; height:0}
+  .textLayer ::selection{background:rgba(15,92,92,.32); color:transparent}
+  .textLayer br::selection{background:transparent}
+  .textLayer .endOfContent{display:block; position:absolute; inset:100% 0 0; z-index:-1; cursor:default; user-select:none}
+  .textLayer.selecting .endOfContent{top:0}
+  .page.jump, .page.jump .textLayer span{cursor:pointer}
+  .hl{z-index:3}
+  .hl{position:absolute; border-radius:3px; background:rgba(245,158,11,.28); box-shadow:0 0 0 2px rgba(245,158,11,.6);
+      pointer-events:none; animation:hl 2.2s ease-out forwards}
+  @keyframes hl{0%,60%{opacity:1}100%{opacity:0}}
+  .pmsg{margin:auto; text-align:center; color:var(--faint); font-size:.9rem; max-width:22rem; padding:2rem}
+  .pmsg b{display:block; color:var(--muted); font:600 1.1rem var(--serif); margin-bottom:.3rem; letter-spacing:-.01em}
+  .pmsg::before{content:""; display:block; width:7.5rem; height:10rem; margin:0 auto 1.4rem; border-radius:6px;
+        background:var(--card) linear-gradient(var(--rule) 0 0) no-repeat 1.2rem 1.4rem/3.2rem .5rem;
+        box-shadow:0 1px 3px rgba(0,0,0,.12),0 10px 24px rgba(0,0,0,.08),
+                   inset 0 0 0 1px var(--rule);
+        background-image:linear-gradient(var(--rule2) 0 0),linear-gradient(var(--rule) 0 0),linear-gradient(var(--rule) 0 0),
+                         linear-gradient(var(--rule) 0 0),linear-gradient(var(--teal-l) 0 0);
+        background-size:3.4rem .5rem,5rem .32rem,5rem .32rem,3.6rem .32rem,5rem 2.6rem;
+        background-position:1.2rem 1.4rem,1.2rem 2.5rem,1.2rem 3.2rem,1.2rem 3.9rem,1.2rem 5.2rem}
+  .overlay{position:absolute; inset:2.5rem 0 0; display:grid; place-items:center; pointer-events:none}
+  .spin{width:2rem; height:2rem; border-radius:50%; border:3px solid var(--teal-m); border-top-color:var(--teal);
+        animation:sp .8s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* the Assistant button */
+  #aibtn{background:var(--ai-soft); border-color:transparent; color:var(--ai); font-weight:600}
+  #aibtn:hover{background:color-mix(in srgb,var(--ai) 20%,transparent); color:var(--ai)}
+  /* code folding */
+  .CodeMirror-foldgutter{width:.9rem}
+  .CodeMirror-foldgutter-open,.CodeMirror-foldgutter-folded{color:var(--faint); cursor:pointer; font-size:.7rem; line-height:1.6}
+  .CodeMirror-foldgutter-open:after{content:"\25BE"} .CodeMirror-foldgutter-folded:after{content:"\25B8"}
+  .CodeMirror-foldmarker{color:var(--teal); background:var(--teal-l); border-radius:4px; padding:0 .35rem; font-family:var(--sans);
+       font-size:.75rem; cursor:pointer; text-shadow:none}
+  .tools2 .btn{padding:.3rem .5rem}
+
+  /* drawers (assistant, history) */
+  .drawer{position:fixed; top:3.3rem; right:0; bottom:0; width:min(27rem,100vw); background:var(--card); z-index:40;
+          border-left:1px solid var(--rule); box-shadow:var(--shadow); display:flex; flex-direction:column;
+          transform:translateX(100%); transition:transform .2s ease}
+  .drawer.open{transform:none}
+  .drawer header{display:flex; align-items:center; gap:.5rem; padding:.85rem 1rem; border-bottom:1px solid var(--rule)}
+  .drawer header h3{margin:0; font:600 1.08rem var(--serif); letter-spacing:-.01em}
+  .drawer header .x{margin-left:auto; border:0; background:none; font-size:1.3rem; cursor:pointer; color:var(--faint);
+          width:2rem; height:2rem; border-radius:8px}
+  .drawer header .x:hover{background:var(--bg2); color:var(--ink)}
+  .dbody{flex:1; overflow:auto; padding:1rem; font-size:.88rem}
+  .drawer header .dot{width:26px; height:26px; border-radius:8px; display:grid; place-items:center; background:var(--ai-soft); color:var(--ai)}
+  .drawer header .dot svg{width:15px; height:15px}
+  /* the Reviewer: its button wears its own colour (--rv, reviewer.css), with a count of the findings to look at */
+  .btn.revbtn{color:var(--rv); border-color:color-mix(in srgb,var(--rv) 35%,var(--rule2))}
+  .btn.revbtn:hover{color:var(--rv); border-color:var(--rv)}
+  .btn.revbtn.on{background:var(--rv); border-color:var(--rv); color:var(--card)}
+  .btn.revbtn svg{width:15px; height:15px}
+  .revn{min-width:1.1rem; height:1.1rem; padding:0 .28rem; border-radius:999px; background:var(--rv); color:var(--card);
+    font:700 .64rem/1.1rem var(--sans); text-align:center; font-variant-numeric:tabular-nums}
+  .btn.revbtn.on .revn{background:var(--card); color:var(--rv)}
+  #rev{width:min(30rem,100vw)}
+  #rev header #revall{margin-left:auto}
+  #rev header #revall + .x{margin-left:0}
+  /* Chat | Edit */
+  .aitabs{display:flex; gap:3px; margin:.7rem 1rem 0; padding:3px; background:var(--bg2); border-radius:10px; flex:none}
+  .aitabs button{flex:1; border:0; background:none; padding:.42rem; border-radius:8px; font:600 .82rem/1.2 var(--sans); color:var(--muted); cursor:pointer}
+  .aitabs button.on{background:var(--card); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .chatpane{flex:1; min-height:0; display:flex; flex-direction:column}
+  #ai header.chead{gap:.15rem; padding:.4rem .45rem .4rem .75rem}
+  .chead .dot{width:22px; height:22px; border-radius:7px; flex:0 0 auto; margin-right:.2rem}
+  .chead .dot svg{width:13px; height:13px}
+  .chead select{flex:1; min-width:0; font:600 .86rem/1.3 var(--sans); color:var(--ink); border:0; border-radius:8px;
+       padding:.3rem 1.3rem .3rem .35rem; cursor:pointer; -webkit-appearance:none; appearance:none; overflow:hidden;
+       text-overflow:ellipsis; white-space:nowrap;
+       background:transparent no-repeat calc(100% - .45rem) 50%/.6rem url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23948b81' stroke-width='1.5'/%3E%3C/svg%3E")}
+  .chead select:hover,.chead select:focus-visible{background-color:var(--bg2); outline:none}
+  .ib{display:inline-grid; place-items:center; width:30px; height:30px; flex:0 0 auto; border:0; border-radius:8px; background:none;
+       color:var(--faint); cursor:pointer; font-size:.95rem; padding:0}
+  .ib:hover{background:var(--bg2); color:var(--ink)}
+  .ib svg{width:16px; height:16px}
+  .ib.busy svg{animation:ibspin 1s linear infinite}
+  @keyframes ibspin{to{transform:rotate(360deg)}}
+  .ib[hidden]{display:none}
+  .chatlog{flex:1; overflow-y:auto; overflow-x:hidden; overflow-wrap:anywhere; padding:1rem; display:flex; flex-direction:column; gap:.9rem; font-size:.88rem}
+  .chatempty{text-align:center; color:var(--muted); margin:auto 0; padding:1rem .5rem}
+  .chatempty .big{font-size:1.6rem; color:var(--ai)} .chatempty b{color:var(--ink); display:block; margin:.3rem 0}
+  .chatempty p{font-size:.82rem; margin:.2rem 0 .9rem}
+  .chatempty .chips{justify-content:center}
+  /* the assistant's scrollbars: thin, grey, the theme's own */
+  #ai,#ai *{scrollbar-width:thin; scrollbar-color:color-mix(in srgb,var(--muted) 45%,transparent) transparent}
+  #ai ::-webkit-scrollbar{width:10px; height:10px}
+  #ai ::-webkit-scrollbar-track,#ai ::-webkit-scrollbar-corner{background:transparent}
+  #ai ::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--muted) 45%,transparent); border-radius:8px;
+       border:2px solid transparent; background-clip:content-box}
+  #ai{-webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility}
+  .msg.me{align-self:stretch}
+  .msg.me .bub{display:block; background:var(--bg2); border:1px solid var(--rule); border-radius:10px; padding:.5rem .7rem;
+       font-size:.87rem; line-height:1.55; white-space:normal; word-break:break-word}
+  .msg .mctx{font-size:.7rem; color:var(--muted); margin-bottom:.25rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  /* the assistant's replies are prose: Source Serif at a reading size with room between lines (as the
+     paper's assistant); its steps, file links, tables and cards stay in Inter, code in JetBrains Mono */
+  .msg.ai{font-size:.86rem; line-height:1.55}
+  .msg.ai .mdt{font:400 .97rem/1.64 var(--prose); font-optical-sizing:auto; font-feature-settings:"kern","liga"; font-variant-numeric:lining-nums}
+  .msg.ai .mdt b{font-weight:600}
+  .msg.ai .mdt li{margin:.3em 0; padding-left:.15em}
+  .msg.ai .mdt li::marker{color:var(--faint)}
+  .msg.ai .mdt ol>li::marker{font:500 .84em var(--sans); color:var(--muted)}
+  .msg.ai .mdt p{margin:.65em 0} .msg.ai .mdt ul,.msg.ai .mdt ol{margin:.5em 0 .7em; padding-left:1.3em}
+  .msg.ai .mdt>:first-child{margin-top:0} .msg.ai .mdt>:last-child{margin-bottom:0}
+  .msg.ai .mdt+.mdt{margin-top:.65em}
+  /* the reply's own words sit in a soft box, apart from its steps and its edits box */
+  .msg.ai .mdt{background:color-mix(in srgb,var(--ai) 6%,transparent); border:1px solid color-mix(in srgb,var(--ai) 18%,var(--rule)); border-radius:10px; padding:.6rem .8rem}
+  .msg.ai .mdt:empty{display:none}
+  /* pieces of text one after another read as one box */
+  .msg.ai .mdt:has(+.mdt){border-bottom:0; border-radius:10px 10px 0 0; padding-bottom:.3rem}
+  .msg.ai .mdt+.mdt{margin-top:0; border-top:0; border-radius:0 0 10px 10px; padding-top:.3rem}
+  .msg.ai .mdt+.mdt:has(+.mdt){border-radius:0}
+  .msg.ai .mdt h5{margin:1.1em 0 .3em; font:600 1.02rem/1.35 var(--prose); letter-spacing:-.005em}
+  .msg.ai .mdt .mtab{font-family:var(--sans)}
+  .msg.ai .mdt hr{border:0; border-top:1px solid var(--rule); margin:1.1em 0}
+  .msg.ai .mdt blockquote{margin:.65em 0; padding:.05em 0 .05em .9em; border-left:3px solid color-mix(in srgb,var(--ai) 35%,var(--rule)); font-style:italic}
+  .msg.ai .cstep+.mdt{margin-top:.5rem} .msg.ai .mdt+.cstep{margin-top:.55rem}
+  .msg.ai .mdt code{font:500 .8em/1.3 var(--mono); background:var(--bg2); border:1px solid var(--rule); border-radius:4px; padding:.04em .32em}
+  .msg.ai .mdt pre{background:var(--bg2); border:1px solid var(--rule); border-radius:8px; padding:.55rem .75rem; overflow:auto; font:.76rem/1.55 var(--mono)}
+  .msg.ai .mdt pre code{background:none; padding:0; border:0}
+  .mtab{overflow-x:auto; margin:.5rem 0; border:1px solid var(--rule); border-radius:8px}
+  .mtab table{border-collapse:collapse; width:100%; font-size:.8rem; line-height:1.4; font-variant-numeric:tabular-nums}
+  .mtab th,.mtab td{padding:.3rem .6rem; text-align:left; border-bottom:1px solid var(--rule); vertical-align:top}
+  .mtab th{font-weight:600; background:var(--bg2)}
+  .mtab tr:last-child td{border-bottom:0}
+  .msg.ai a.fref{color:var(--ai); text-decoration:none; font-weight:600; font-family:var(--mono); font-size:.8em}
+  .msg.ai a.fref:hover{text-decoration:underline}
+  .msg.ai .bref.gone{color:var(--muted); background:var(--bg2); font-style:italic}   /* a block since deleted */
+  .msg.ai .bref,.msg.ai a.fref.bref{color:var(--ai); text-decoration:none; font:500 .8em/1.55 var(--sans); background:var(--ai-soft); border-radius:6px;
+       padding:0 .35em; white-space:nowrap; display:inline-block; max-width:100%; overflow:hidden; text-overflow:ellipsis; vertical-align:bottom}
+  .cstep{font-size:.74rem; color:var(--muted); margin:.15rem 0; padding-left:.9rem; position:relative}
+  .cfig{margin:.4rem 0}
+  .cfig img{display:block; max-width:100%; height:auto; background:#fff; border:1px solid var(--rule); border-radius:8px}
+  .cstep:before{content:"\21b3"; position:absolute; left:0}
+  .csug{margin:.5rem 0; border:1px solid color-mix(in srgb,var(--ai) 35%,var(--rule)); border-radius:12px; padding:.6rem;
+        background:color-mix(in srgb,var(--ai) 4%,var(--card))}
+  .csug .sgh{font-size:.8rem; font-weight:600; margin-bottom:.45rem}
+  .csug .card{border:1px solid var(--rule); border-radius:10px; margin:.45rem 0; background:var(--card); overflow:hidden; transition:opacity .2s}
+  .csug .card.off{opacity:.5}
+  .csug .top{display:flex; align-items:center; gap:.5rem; padding:.4rem .7rem; background:var(--bg2); font:.74rem var(--mono); color:var(--muted)}
+  .csug .top a{color:var(--teal); text-decoration:none; margin-left:auto; font-family:var(--sans)}
+  .csug .diff{max-height:14rem}
+  .csug .why{padding:.1rem .7rem .55rem; font-size:.8rem; color:var(--muted); font-family:var(--sans)}
+  .csug .acts{display:flex; gap:.4rem; padding:0 .7rem .6rem}
+  .toggle{border:1px solid var(--rule2); border-radius:8px; background:var(--card); padding:.26rem .6rem; font:500 .76rem/1.2 var(--sans); cursor:pointer; color:var(--ink)}
+  .toggle.yes{border-color:#15803d; color:#15803d; background:color-mix(in srgb,#22c55e 14%,transparent)}
+  .toggle.no{border-color:var(--red); color:var(--red); background:var(--red-l)}
+  .csug .sgf{display:flex; justify-content:flex-end}
+  /* an earlier message of the author's: picked, it offers to go back to it (as in the reader) */
+  .msg.me .bub{cursor:pointer; transition:border-color .15s, box-shadow .15s}
+  .msg.me .bub:hover, .msg.me.picked .bub{border-color:color-mix(in srgb,var(--ai) 45%,var(--rule))}
+  .msg.me.picked .bub{box-shadow:0 0 0 3px color-mix(in srgb,var(--ai) 15%,transparent)}
+  .rewind{margin:.3rem 0 .6rem; padding:.6rem .7rem; border-radius:10px; font:.78rem/1.45 var(--sans);
+       background:color-mix(in srgb,#f59e0b 10%,var(--card)); border:1px solid color-mix(in srgb,#f59e0b 45%,var(--rule))}
+  .rewind b{display:block; font-size:.82rem; margin-bottom:.2rem} .rewind p{margin:0 0 .5rem; color:var(--muted)}
+  .rwacts{display:flex; justify-content:flex-end; gap:.4rem}
+  .rwgo{border:0; border-radius:8px; background:#b45309; color:#fff; font:600 .76rem/1 var(--sans); padding:.42rem .8rem; cursor:pointer;
+       display:inline-flex; align-items:center; gap:.35rem}
+  /* a reply's suggested edits in one box (as the reader's): the count still to apply, Apply all,
+     each edit its own Apply, an applied one greyed out */
+  .cedits[hidden]{display:none}
+  .msg.ai.writing>.cedits{display:none}   /* a reply still being written: its edits come after it */
+  .cedits .edh{display:flex; align-items:center; gap:.45rem; flex-wrap:wrap; margin:-.6rem -.6rem .45rem; padding:.6rem .6rem .45rem;
+       position:sticky; top:-.8rem; z-index:2; border-radius:12px 12px 0 0; background:color-mix(in srgb,var(--ai) 4%,var(--card))}
+  .cedits .edt{font:600 .82rem/1.2 var(--sans); color:var(--ink)}
+  .cedits .edc{min-width:1.35rem; height:1.35rem; padding:0 .35rem; border-radius:999px; background:var(--ai); color:var(--card);
+       font:700 .72rem/1.35rem var(--sans); text-align:center}
+  .cedits.resolved .edc{background:var(--rule2); color:var(--muted)}
+  .cedits .edst{flex:1; min-width:0; font:.74rem var(--sans); color:var(--muted)}
+  .cedits .edall,.cedits .edgo{border:1px solid var(--ai); border-radius:8px; background:var(--ai); color:var(--card); cursor:pointer;
+       font:600 .76rem/1 var(--sans); padding:.4rem .75rem; display:inline-flex; align-items:center; gap:.35rem}
+  .cedits .edall:hover:not(:disabled),.cedits .edgo:hover:not(:disabled){filter:brightness(1.08)}
+  .cedits .edgo.done,.cedits .edgo.done:disabled{background:color-mix(in srgb,#22c55e 14%,transparent); border-color:transparent;
+       color:#15803d; cursor:default}
+  @media (prefers-color-scheme:dark){.cedits .edgo.done{color:#4ade80}}
+  .cedits .eddone{font:600 .76rem var(--sans); color:#15803d}
+  .cedits .edsum{font:.78rem/1.45 var(--sans); color:var(--muted); margin:-.15rem 0 .45rem}
+  .cedits .edsub{font:600 .74rem/1.4 var(--sans); color:var(--muted); margin:.55rem 0 .3rem}
+  .cedits .edno{flex:none; width:1.2rem; height:1.2rem; border-radius:50%; background:var(--card); border:1px solid var(--rule2);
+       display:grid; place-items:center; font:600 .68rem/1 var(--sans); color:var(--muted)}
+  .cedits .card.st-applied .edno{background:#15803d; border-color:#15803d; color:#fff}
+  .cedits .acts{align-items:center} .cedits .acts .sp{flex:1}
+  .cedits .edfig{display:grid; grid-template-columns:1fr 1fr; gap:.5rem; padding:.6rem .7rem .3rem}
+  .cedits .edfig figure{margin:0; min-width:0}
+  .cedits .edfig figcaption{font:600 .68rem/1.3 var(--sans); color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:.25rem}
+  .cedits .edfig img{display:block; width:100%; height:auto; background:#fff; border:1px solid var(--rule); border-radius:6px}
+  .cedits .edfig figure:last-child img{border-color:color-mix(in srgb,var(--ai) 45%,var(--rule))}
+  .cedits .ednone{font:.75rem var(--sans); color:var(--muted); padding:1rem 0}
+  .cedits .edread{margin:.1rem 0 .5rem; font:.78rem var(--sans)} .cedits .edread summary{cursor:pointer; color:var(--teal); font-weight:600}
+  .cedits .edrest{font:.76rem var(--sans); color:var(--muted); margin:.3rem .1rem .2rem}
+  .csug .sgdone{font-size:.78rem; color:#15803d; font-weight:600; text-align:right}
+  /* a change's state, as in the reader: accepted (Undo), rejected (Undo), out of date */
+  .csug .sgh{display:flex; align-items:center; gap:.5rem} .csug .sgh > button{margin-left:auto}
+  .csug .top .where{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .csug .sgst{flex:none; font:600 .68rem/1.4 var(--sans); color:var(--muted); background:var(--card); border:1px solid var(--rule);
+       border-radius:999px; padding:0 .45rem}
+  .csug .sgst.ok{color:#15803d; border-color:color-mix(in srgb,#15803d 40%,transparent); background:color-mix(in srgb,#22c55e 12%,transparent)}
+  @media (prefers-color-scheme:dark){.csug .sgst.ok{color:#4ade80}}
+  .csug .card.st-applied{border-color:color-mix(in srgb,#15803d 35%,var(--rule))}
+  .csug .card.folded{opacity:.8} .csug .card.folded .top{background:none}
+  .csug .sgerr{margin:0 .7rem .55rem; font:.76rem/1.4 var(--sans); color:var(--red)}
+  .csug.resolved{border-color:color-mix(in srgb,#15803d 30%,var(--rule))}
+  .csug.closed{padding:.45rem .6rem}
+  .csug .sgclosed{display:flex; align-items:center; gap:.5rem; font:.78rem var(--sans); color:var(--muted)}
+  .csug .sgclosed span{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .ghost.sm{flex:none; border:1px solid var(--rule2); background:var(--card); border-radius:7px; padding:.1rem .45rem;
+       font:500 .7rem/1.3 var(--sans); color:var(--ink); cursor:pointer}
+  .ghost.sm:hover{border-color:var(--teal); color:var(--teal)} .ghost.sm:disabled{opacity:.5; cursor:default}
+  .csug .sgf .btn .cspin{margin-right:.2rem}
+  /* a change shown two ways: as the reader will show it (Diff, Before / after) and as LaTeX */
+  .vtabs{display:inline-flex; gap:2px; padding:2px; background:var(--bg2); border-radius:8px; margin:.45rem .7rem .1rem}
+  .vtabs button{border:0; background:none; padding:.2rem .55rem; border-radius:6px; cursor:pointer; font:600 .7rem/1.2 var(--sans); color:var(--muted)}
+  body:not(.dv-ba):not(.dv-tex) .vtabs [data-v=diff], body.dv-ba .vtabs [data-v=ba], body.dv-tex .vtabs [data-v=tex]{background:var(--card); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .csug > .dview > .vtabs{margin:0 0 .2rem}
+  .vba, .vtex{display:none}
+  body.dv-ba .vba{display:grid; gap:.4rem; padding:.5rem .7rem .2rem} body.dv-ba .vdiff{display:none}
+  body.dv-tex .vtex{display:block} body.dv-tex .vdiff, body.dv-tex .vba{display:none}
+  .diff.rd, .vold, .vnew{font:.86rem/1.55 var(--sans); white-space:normal}
+  .vlab{font:600 .64rem/1.2 var(--sans); letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:.2rem}
+  .vold, .vnew{border-radius:8px; padding:.45rem .6rem; word-break:break-word}
+  .vold{background:var(--bg2)} .vnew{background:var(--teal-l)}
+  .vnone{padding:.5rem .7rem; font:.78rem var(--sans); color:var(--muted)}
+  .csug.has-read .card .diff.lx{display:none} body.dv-tex .csug.has-read .card .diff.lx{display:block}
+  body.dv-tex .csug .rsec{display:none}
+  .rhead{font:600 .64rem/1.2 var(--sans); letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:.1rem 0}
+  .rcard .rmove{padding:.45rem .7rem 0; font:600 .78rem var(--sans); color:var(--ai)}
+  .rcard .rmove span{font-weight:400; color:var(--muted)}
+  .diff .rmove{font-style:normal; font-weight:600; color:var(--ai)}
+  /* a suggested change's table or picture, as the reader draws it: the cells that are new or change marked */
+  .csug .tscroll{overflow-x:auto; margin:.45rem 0 .15rem; white-space:normal}
+  .csug table.ptable{border-collapse:collapse; font:.74rem/1.4 var(--sans); word-break:normal; overflow-wrap:normal; border-top:2px solid var(--ink); border-bottom:2px solid var(--ink)}
+  .csug table.ptable th, .csug table.ptable td{border:0; border-bottom:1px solid var(--rule); padding:.28rem .45rem; min-width:2.5em; text-align:left; vertical-align:top}
+  .csug table.ptable th{font-weight:600; border-bottom:1px solid var(--ink)}
+  .csug table.ptable tr:last-child td{border-bottom:0}
+  .csug table.ptable tr>.tins{background:var(--teal-l); color:var(--teal); box-shadow:inset 0 0 0 1px var(--teal-m)}
+  .csug .rpic{display:block; max-width:100%; height:auto; margin:.45rem auto .15rem; border-radius:6px; background:#fff}
+  .fc{color:var(--fc)}
+  .cplan{margin:.45rem 0; padding:.5rem .65rem; border:1px solid var(--rule); border-radius:8px; font-size:.8rem; background:color-mix(in srgb,var(--ai) 5%,transparent)}
+  .cplan .ph{font-weight:600; font-size:.74rem; color:var(--muted); margin-bottom:.25rem; text-transform:uppercase; letter-spacing:.04em}
+  .cplan ul{margin:0; padding:0} .cplan li{list-style:none; display:flex; gap:.45rem; margin:.18rem 0; line-height:1.35}
+  .cplan .ck{flex:none; width:1rem; text-align:center} .cplan .done{color:var(--muted); text-decoration:line-through}
+  .cplan .in_progress{font-weight:600} .cplan .in_progress .ck{color:var(--ai)}
+  .typing{display:flex; gap:4px; padding:.3rem 0; align-items:center}
+  .typing span{width:6px; height:6px; border-radius:50%; background:var(--muted); animation:tp 1.2s infinite ease-in-out}
+  .typing span:nth-child(2){animation-delay:.15s} .typing span:nth-child(3){animation-delay:.3s}
+  .typing em{font-style:normal; font-size:.74rem; color:var(--muted); margin-left:.4rem}
+  @keyframes tp{0%,80%,100%{opacity:.25; transform:translateY(0)}40%{opacity:1; transform:translateY(-3px)}}
+  /* the composer: one box -- the context chip, the message, the model and send */
+  .composer{padding:.35rem .75rem calc(.75rem + env(safe-area-inset-bottom,0px))}
+  .cbox{border:1px solid var(--rule2); border-radius:12px; background:var(--card); padding:.45rem .55rem .35rem; box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .cbox:focus-within{border-color:color-mix(in srgb,var(--ai) 55%,var(--rule2))}
+  .cctx{display:flex; flex-wrap:wrap; gap:.3rem; align-items:center; margin-bottom:.25rem}
+  .cctx[hidden]{display:none}
+  .chatctx{display:inline-flex; align-items:center; gap:.15rem; max-width:100%; min-width:0; font-size:.72rem; line-height:1.45;
+       color:var(--ai); background:var(--ai-soft); border-radius:6px; padding:.08rem .1rem .08rem .45rem}
+  .chatctx[hidden]{display:none}
+  /* @ Add context, the passages in the chat and their picker (as the reader's composer) */
+  .atbtn{border:1px solid var(--rule2); background:none; border-radius:6px; padding:.08rem .45rem; font:500 .72rem/1.45 var(--sans);
+       color:var(--muted); cursor:pointer; flex:0 0 auto}
+  .atbtn:hover{color:var(--ink); background:var(--bg2)}
+  .chatrefs{display:contents}
+  .cref{display:inline-flex; align-items:center; gap:.15rem; max-width:100%; min-width:0; font-size:.72rem; line-height:1.45; color:var(--ink);
+       border:1px solid color-mix(in srgb,var(--ai) 35%,var(--rule2)); background:color-mix(in srgb,var(--ai) 8%,var(--card));
+       border-radius:6px; padding:.08rem .1rem .08rem .45rem}
+  .cref > span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:14rem}
+  .cref .x{border:0; background:none; cursor:pointer; color:var(--muted); font-size:.68rem; padding:0 .3rem; flex:0 0 auto}
+  .cref .x:hover{color:var(--ink)}
+  .chatpick{position:absolute; left:0; right:0; bottom:calc(100% + .3rem); max-height:16rem; overflow:auto; z-index:5; padding:.25rem;
+       background:var(--card); border:1px solid var(--rule2); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.12)}
+  .chatpick[hidden]{display:none}
+  .chatpick button{display:flex; gap:.45rem; align-items:baseline; width:100%; text-align:left; border:0; background:none; border-radius:7px;
+       padding:.35rem .5rem; font:.8rem/1.35 var(--sans); color:var(--ink); cursor:pointer}
+  .chatpick button.on,.chatpick button:hover{background:var(--bg2)}
+  .chatpick .pk{color:var(--muted); width:1rem; flex:0 0 auto; text-align:center}
+  .chatpick .pn{font-weight:600; white-space:nowrap; flex:0 1 auto; overflow:hidden; text-overflow:ellipsis}
+  .chatpick .ps{color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1 1 0; min-width:0}
+  .chatpick .pnone{padding:.5rem; font-size:.76rem; color:var(--muted)}
+  .chatctx span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .chatctx .x{border:0; background:none; cursor:pointer; color:var(--muted); font-size:.68rem; padding:0 .3rem; flex:0 0 auto}
+  #chatq{display:block; width:100%; box-sizing:border-box; resize:none; border:0; outline:none; background:none; color:var(--ink);
+       font:.88rem/1.45 var(--sans); padding:.2rem .1rem; min-height:1.7rem; max-height:200px}
+  .cbar{display:flex; align-items:center; gap:.4rem; margin-top:.15rem}
+  #chatmodel{border:0; background:none; color:var(--muted); font:500 .74rem/1.2 var(--sans); padding:.25rem .35rem; border-radius:6px;
+       cursor:pointer; max-width:12rem; min-width:0; flex:none}
+  #chatmodel:hover{background:var(--bg2); color:var(--ink)}
+  .msg.ai .cusage{font:.7rem/1.4 var(--sans); color:var(--muted); margin-top:.35rem}
+  .cbar .cclip{width:28px; height:28px; color:var(--muted)}
+  .cbar .cclip:hover{color:var(--ink)}
+  .catt{display:inline-flex; align-items:center; gap:.25rem; max-width:100%; min-width:0; font-size:.72rem; line-height:1.45; color:var(--ink);
+       border:1px solid var(--rule2); background:var(--panel); border-radius:6px; padding:.08rem .1rem .08rem .45rem}
+  .catt > span:not(.cspin){max-width:12rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .catt .x{border:0; background:none; cursor:pointer; color:var(--muted); font-size:.68rem; padding:0 .3rem; flex:0 0 auto}
+  .cspin{width:10px; height:10px; border-radius:50%; border:2px solid var(--rule2); border-top-color:var(--ai); animation:cspin .8s linear infinite}
+  /* snips (tools/snip.js): the chip with its picture, in the composer and above a sent message */
+  .csnip{gap:.35rem; padding-left:.12rem}
+  .snipthumb{border:0; padding:0; background:var(--card); cursor:pointer; display:inline-flex; border-radius:4px; overflow:hidden;
+       box-shadow:0 0 0 1px var(--rule2); flex:none}
+  .snipthumb img{display:block; height:1.45rem; width:2.4rem; object-fit:cover; object-position:top left}
+  .snipthumb:hover{box-shadow:0 0 0 1.5px var(--ai)}
+  .msnips{display:flex; flex-wrap:wrap; gap:.35rem; margin:0 0 .3rem}
+  .msnips img{display:block; max-height:7.5rem; max-width:min(100%,15rem); border-radius:8px; background:var(--card);
+       box-shadow:0 0 0 1px var(--rule2)}
+  body.snipping .drawer, body.snipping .toast, body.snipping #selbar{visibility:hidden}
+  @keyframes cspin{to{transform:rotate(360deg)}}
+  /* a file dragged over the editor: the assistant's box takes it */
+  .cbox{position:relative}
+  body.dropping #ai .cbox{border-color:var(--ai); border-style:dashed; box-shadow:0 0 0 3px color-mix(in srgb,var(--ai) 22%,transparent)}
+  body.dropping #ai .cbox::after{content:'Drop to attach'; position:absolute; inset:0; display:grid; place-items:center; border-radius:12px;
+       font:600 .82rem var(--sans); color:var(--ai); background:color-mix(in srgb,var(--card) 88%,transparent); pointer-events:none}
+  .cbar .chint{margin-left:auto; font-size:.68rem; color:var(--faint); white-space:nowrap; min-width:0; overflow:hidden; text-overflow:ellipsis}
+  #chatsend{margin-left:.2rem; width:28px; height:28px; flex:0 0 auto; border:0; border-radius:8px; background:var(--ai); color:#fff;
+       display:grid; place-items:center; padding:0; cursor:pointer}
+  #chatsend svg{width:15px; height:15px}
+  #chatsend:disabled{opacity:.5; cursor:default}
+  #chatsend.stop{background:var(--ink); color:var(--bg)}
+  .cstopped{font-size:.72rem; color:var(--muted); margin:.35rem 0 0; font-style:italic}
+  .ccut{margin:.5rem 0 0; padding:.45rem .65rem; border-radius:8px; font:.76rem/1.45 var(--sans); color:var(--ink);
+       background:color-mix(in srgb,#d97706 11%,transparent); border:1px solid color-mix(in srgb,#d97706 35%,var(--rule))}
+  @media (max-width:640px){.cbar .chint{display:none} .cbar #chatsend{margin-left:auto}}
+  .cerr{margin:.5rem 0; padding:.6rem .7rem; border-radius:10px; font-size:.84rem; background:var(--red-l); color:var(--red)}
+  .lbl{font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); margin:.2rem 0 .4rem}
+  .passage{font:.78rem/1.5 var(--mono); background:var(--bg); border:1px solid var(--rule); border-radius:10px;
+           padding:.6rem .7rem; max-height:9rem; overflow:auto; white-space:pre-wrap; color:var(--muted)}
+  .passage.none{font-family:var(--sans); font-style:italic}
+  .chips{display:flex; flex-wrap:wrap; gap:.35rem; margin:.8rem 0}
+  .chip{border:1px solid var(--rule2); background:var(--card); border-radius:999px; padding:.25rem .65rem; font-size:.78rem;
+        cursor:pointer; color:var(--muted)}
+  .chip:hover{border-color:var(--teal); color:var(--teal)}
+  textarea.ask{width:100%; min-height:4.5rem; resize:vertical; border:1px solid var(--rule2); border-radius:11px;
+         padding:.6rem .7rem; background:var(--bg)}
+  textarea.ask:focus{outline:2px solid var(--teal-m); border-color:var(--teal)}
+  .row{display:flex; gap:.5rem; align-items:center; margin-top:.6rem}
+  .row .btn.primary{margin-left:auto}
+  .result{margin-top:1rem; border:1px solid var(--teal-m); border-radius:12px; overflow:hidden}
+  .result .sum{padding:.6rem .75rem; background:var(--teal-l); color:var(--ink); font-size:.84rem}
+  .diff{font:.78rem/1.55 var(--mono); padding:.7rem .75rem; white-space:pre-wrap; max-height:22rem; overflow:auto}
+  .diff del{background:var(--red-l); color:var(--red); text-decoration:line-through}
+  .diff ins{background:var(--teal-l); color:var(--teal); text-decoration:none}
+  .result .row{padding:.6rem .75rem; margin:0; border-top:1px solid var(--rule)}
+  .err{color:var(--red); font-size:.84rem; margin-top:.6rem} .err:empty{display:none}
+  .hist{display:flex; gap:.7rem; align-items:flex-start; padding:.6rem 0; border-bottom:1px solid var(--rule)}
+  .hist .v{font:700 .75rem var(--mono); color:var(--teal); background:var(--teal-l); border-radius:6px; padding:.1rem .4rem}
+  .hist .n{flex:1} .hist .n small{display:block; color:var(--faint); font-size:.76rem}
+
+  /* selection bar: the reader's, here too */
+  #selbar{position:fixed; z-index:55; display:flex; align-items:center; gap:2px; padding:4px; border-radius:12px;
+          background:var(--ink); color:var(--bg); box-shadow:0 10px 30px rgba(0,0,0,.28); font:500 .8rem/1 var(--sans);
+          animation:pop .14s ease-out}
+  @keyframes pop{from{opacity:0; transform:translateY(4px) scale(.97)}}
+  #selbar button{display:inline-flex; align-items:center; gap:.38rem; border:0; background:none; color:inherit;
+          padding:.45rem .65rem; border-radius:8px; cursor:pointer; font:inherit; white-space:nowrap}
+  #selbar button:hover{background:color-mix(in srgb,var(--bg) 16%,transparent)}
+  #selbar button.ai{color:color-mix(in srgb,var(--teal-m) 70%,var(--bg))}
+  @media (prefers-color-scheme:dark){#selbar button.ai{color:#0f5c5c}}
+  #selbar .sep{width:1px; height:18px; background:color-mix(in srgb,var(--bg) 30%,transparent)}
+  #selbar svg{width:14px; height:14px}
+  .toast{position:fixed; left:50%; bottom:1.2rem; transform:translateX(-50%); background:var(--ink); color:var(--bg);
+         padding:.55rem .95rem; border-radius:10px; font-size:.85rem; z-index:60; box-shadow:var(--shadow)}
+
+  /* a laptop's width: Compile without its key, History and Download by their icons */
+  @media (max-width:1150px){.top .btn kbd{display:none} #histbtn .hide-sm,#dlbtn .hide-sm{display:none}}
+  /* narrow screens: one pane at a time */
+  .mtabs{display:none}
+  @media (max-width:900px){
+    .main{grid-template-columns:minmax(0,1fr)} .side,.gut{display:none} .ed,.pdf{grid-column:1}
+    .main .pdf{display:none} .main.showpdf .ed{display:none} .main.showpdf .pdf{display:flex}
+    .mtabs{display:flex} .crumb b{max-width:34vw} .hide-sm{display:none}
+    .crumb a,.crumb>span:not(.badge){display:none} #stxt{display:none} .btn kbd{display:none}
+    .top{gap:.4rem; padding:0 .5rem}
+  }
+  /* phones: the bar's buttons by their icons, so all of them fit */
+  @media (max-width:640px){
+    .top{gap:.3rem; padding:0 .4rem} .top .btn{padding:.34rem .45rem} .cmpt{display:none}
+    .mode svg{display:none} .mode{padding:.3rem .45rem}
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5M9 13h6M9 17h4"></path></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"></path></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"></path></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"></path></symbol>
+  <symbol id="i-side" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M9 4v16"></path></symbol>
+  <symbol id="i-sync" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"></path><path d="m14 6 4 4"></path></symbol>
+  <symbol id="i-fold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16M4 20h16"></path><path d="m8 9 4 3 4-3M8 15l4-3 4 3"></path></symbol>
+  <symbol id="i-unfold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"></path><path d="m8 6 4-3 4 3M8 18l4 3 4-3"></path></symbol>
+</svg>
+
+<div class="top">
+  <a class="brand" href="/app" title="Your space"><span class="logo"><svg class="i"><use href="#i-doc"></use></svg></span></a>
+  <div class="crumb"><a href="/app">Your space</a><span>/</span><b id="title">2610-37400v1-pdf.pdf</b>
+    <span class="badge" id="draftb" hidden="" title="Made from the document's generated LaTeX">LaTeX draft</span></div>
+  <span class="modes" role="group" aria-label="view"><a class="mode" id="reader" href="paper.html" title="The reading view (HTML)"><svg class="i"><use href="#i-book"></use></svg>Reader</a><a class="mode on" aria-current="page" title="The LaTeX editor (you are here)"><svg class="i"><use href="#i-pen"></use></svg>LaTeX</a></span>
+  <button class="btn hide-sm" id="sidebtn" title="Files and outline"><svg class="i"><use href="#i-side"></use></svg></button>
+  <div class="grow"></div>
+  <span class="status " id="status"><span class="dot"></span><span id="stxt">Compiled · 0.9 s</span></span>
+  <label class="tgl hide-sm" title="Compile after each save"><input type="checkbox" id="auto" style=""> Auto</label>
+  <button class="btn primary" id="compile" title="Save and compile (Ctrl/⌘+S)"><svg class="i"><use href="#i-play"></use></svg><span class="cmpt">Compile</span> <kbd>Ctrl S</kbd></button>
+  <button class="btn" id="histbtn" title="Versions"><svg class="i"><use href="#i-clock"></use></svg><span class="hide-sm">History</span></button>
+  <button class="btn" id="aibtn" title="Writing assistant (Ctrl/⌘+K)"><svg class="i"><use href="#i-spark"></use></svg><span class="hide-sm">Assistant</span></button>
+  <button class="btn revbtn" id="revbtn" title="Reviewer: check the paper's claims, the paper as a whole, its grammar and its flow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6v3H9z"></path><path d="M15 5.5h2a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7.5a2 2 0 0 1 2-2h2"></path><path d="M9 14l2 2 4-4"></path></svg><span class="hide-sm">Reviewer</span><span class="revn" hidden=""></span></button>
+  <div class="menuw"><button class="btn" id="dlbtn" aria-haspopup="menu" title="Download the compiled PDF or the LaTeX project"><svg class="i"><use href="#i-dl"></use></svg><span class="hide-sm">Download</span></button>
+    <div class="menu" id="dlmenu" hidden="">
+      <a id="dlpdf" href="latex/pdf" download=""><svg class="i"><use href="#i-doc"></use></svg>Compiled PDF</a>
+      <a href="latex/package.zip"><svg class="i"><use href="#i-dl"></use></svg>LaTeX project (.zip)</a>
+    </div></div>
+</div>
+<div class="banner" id="draftnote" hidden="">
+  <span>This is a <b>LaTeX draft</b> made from the document's conversion. Changes stay in this LaTeX project;
+    the reader keeps showing the original conversion.</span>
+</div>
+<div class="banner" id="syncnote">
+  <span>This LaTeX is <b>synced with the reader</b>: what you save here changes the document, and edits made in
+    the reader appear here. Only the parts you change are rewritten.</span>
+</div>
+<div class="banner bad" id="conflict" hidden="">
+  <span><b>The LaTeX changed elsewhere</b> (another tab or the reader). Reload to continue from the latest version.</span>
+  <button class="btn" onclick="location.reload()">Reload</button>
+</div>
+<div class="mtabs banner" style="background:var(--card)">
+  <button class="btn on" id="m-ed">Source</button><button class="btn" id="m-pdf">PDF</button>
+</div>
+
+<div class="main" id="main" style="--pdfw: 1fr;">
+  <aside class="side">
+    <div class="sh"><button class="shx" type="button" data-fold="files" aria-controls="tree" aria-expanded="true" title="Show or hide the files"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>Files<span class="shn" id="treen">· 15</span></button><button id="newfile" title="New file">+</button></div>
+    <nav class="tree" id="tree"><a href="#" data-p="main.tex" class="cur " title="main.tex"><span class="fi" style="background:#0f6b5f">TEX</span><span class="fp"><span class="fname"><span class="fstem">main</span><span class="fext">.tex</span></span></span><span class="main-dot">MAIN</span></a><a href="#" data-p="figs/fig_10_p11.png" class="ro" title="figs/fig_10_p11.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_10_p11</span><span class="fext">.png</span></span></span></a><a href="#" data-p="figs/fig_11_p12.png" class="ro" title="figs/fig_11_p12.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_11_p12</span><span class="fext">.png</span></span></span></a><a href="#" data-p="figs/fig_11_p13.png" class="ro" title="figs/fig_11_p13.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_11_p13</span><span class="fext">.png</span></span></span></a><a href="#" data-p="figs/fig_11_p14.png" class="ro" title="figs/fig_11_p14.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_11_p14</span><span class="fext">.png</span></span></span></a><a href="#" data-p="figs/fig_2_p0.png" class="ro" title="figs/fig_2_p0.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_2_p0</span><span class="fext">.png</span></span></span></a><a href="#" data-p="figs/fig_2_p1.png" class="ro" title="figs/fig_2_p1.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_2_p1</span><span class="fext">.png</span></span></span></a><a href="#" data-p="figs/fig_3_p2.png" class="ro" title="figs/fig_3_p2.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_3_p2</span><span class="fext">.png</span></span></span></a><a href="#" data-p="figs/fig_3_p3.png" class="ro" title="figs/fig_3_p3.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_3_p3</span><span class="fext">.png</span></span></span></a><a href="#" data-p="figs/fig_6_p5.png" class="ro" title="figs/fig_6_p5.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_6_p5</span><span class="fext">.png</span></span></span></a><a href="#" data-p="figs/fig_6_p6.png" class="ro" title="figs/fig_6_p6.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_6_p6</span><span class="fext">.png</span></span></span></a><a href="#" data-p="figs/fig_7_p7.png" class="ro" title="figs/fig_7_p7.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_7_p7</span><span class="fext">.png</span></span></span></a><a href="#" data-p="figs/fig_8_p8.png" class="ro" title="figs/fig_8_p8.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_8_p8</span><span class="fext">.png</span></span></span></a><a href="#" data-p="figs/fig_8_p9.png" class="ro" title="figs/fig_8_p9.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_8_p9</span><span class="fext">.png</span></span></span></a><a href="#" data-p="figs/fig_9_p10.png" class="ro" title="figs/fig_9_p10.png (read-only)"><span class="fi" style="background:#2b5797">IMG</span><span class="fp"><span class="fdir">figs/</span><span class="fname"><span class="fstem">fig_9_p10</span><span class="fext">.png</span></span></span></a></nav>
+    <div class="sh"><button class="shx" type="button" data-fold="outline" aria-controls="outline" aria-expanded="true" title="Show or hide the outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>Outline<span class="shn" id="outlinen">· 16</span></button></div>
+    <nav class="outline" id="outline"><a href="#" class="l1 meta" data-l="46">Abstract</a><a href="#" class="l1" data-l="52">Introduction</a><a href="#" class="l1" data-l="75">PS Detection, Parameter Estimation AND Simulated Performances</a><a href="#" class="l2" data-l="78">Signal model</a><a href="#" class="l2" data-l="115">Incoherent detection</a><a href="#" class="l2" data-l="154">Detection performances</a><a href="#" class="l2" data-l="157">Incoherent estimation</a><a href="#" class="l2" data-l="214">Estimation performances</a><a href="#" class="l1" data-l="270">Real Data Analysis</a><a href="#" class="l2" data-l="275">Nairobi - Kenya</a><a href="#" class="l2" data-l="302">Córdoba - Argentina</a><a href="#" class="l2" data-l="333">Qualitative BIOMASS Calibration Transponder (BCT) comparison</a><a href="#" class="l1" data-l="344">Conclusion</a><a href="#" class="l1" data-l="349">Appendix: Bias ON the Estimate of the Dispersion Index</a><a href="#" class="l1" data-l="386">Appendix: Relationship Between Incoherent Dispersion Index AND SNR in SAR Images</a><a href="#" class="l1" data-l="465">Acknowledgment</a></nav>
+  </aside>
+
+  <section class="ed">
+    <div class="tabs" id="tabs"><button class="tab cur" data-p="main.tex">main.tex</button><div class="tools2"><button class="btn" id="foldbtn" title="Fold every section and environment (Ctrl/⌘+Shift+[)"><svg class="i"><use href="#i-fold"></use></svg></button><button class="btn" id="unfoldbtn" title="Unfold all (Ctrl/⌘+Shift+])"><svg class="i"><use href="#i-unfold"></use></svg></button><button class="btn" id="findbtn" title="Search (Ctrl/⌘+F)"><svg class="i"><use href="#i-search"></use></svg></button></div></div>
+    <div class="cmwrap" id="cmwrap"><textarea class="fallback" spellcheck="false" style=""></textarea></div>
+    <div class="probs" id="probs">
+      <header id="probh"><b>Problems</b><span class="cnt e" id="ce">0</span><span class="cnt w" id="cw">0</span>
+        <span class="cnt i" id="ci">18</span><span class="grow"></span><span id="ptime">compiled in 0.9 s</span>
+        <svg class="i" id="pchev"><use href="#i-chev"></use></svg></header>
+      <div class="list" id="plist" hidden=""><div class="pr info" data-i="0"><span class="lv"></span><span class="msg">Overfull \hbox (199.26408pt too wide)</span><span class="loc">main.tex:254</span></div><div class="pr info" data-i="1"><span class="lv"></span><span class="msg">Overfull \hbox (198.9061pt too wide)</span><span class="loc">main.tex:255</span></div><div class="pr info" data-i="2"><span class="lv"></span><span class="msg">Overfull \hbox (202.43964pt too wide)</span><span class="loc">main.tex:256</span></div><div class="pr info" data-i="3"><span class="lv"></span><span class="msg">Overfull \hbox (199.26443pt too wide)</span><span class="loc">main.tex:257</span></div><div class="pr info" data-i="4"><span class="lv"></span><span class="msg">Overfull \hbox (201.15309pt too wide)</span><span class="loc">main.tex:258</span></div><div class="pr info" data-i="5"><span class="lv"></span><span class="msg">Overfull \hbox (201.1371pt too wide)</span><span class="loc">main.tex:259</span></div><div class="pr info" data-i="6"><span class="lv"></span><span class="msg">Overfull \hbox (200.07843pt too wide)</span><span class="loc">main.tex:260</span></div><div class="pr info" data-i="7"><span class="lv"></span><span class="msg">Overfull \hbox (201.49509pt too wide)</span><span class="loc">main.tex:261</span></div><div class="pr info" data-i="8"><span class="lv"></span><span class="msg">Overfull \hbox (201.20198pt too wide)</span><span class="loc">main.tex:262</span></div><div class="pr info" data-i="9"><span class="lv"></span><span class="msg">Overfull \hbox (200.9091pt too wide)</span><span class="loc">main.tex:263</span></div><div class="pr info" data-i="10"><span class="lv"></span><span class="msg">Underfull \hbox (badness 1838)</span><span class="loc">main.tex:273</span></div><div class="pr info" data-i="11"><span class="lv"></span><span class="msg">Underfull \hbox (badness 10000)</span><span class="loc">main.tex:345</span></div><div class="pr info" data-i="12"><span class="lv"></span><span class="msg">Underfull \hbox (badness 2486)</span><span class="loc">main.tex:345</span></div><div class="pr info" data-i="13"><span class="lv"></span><span class="msg">Underfull \hbox (badness 2035)</span><span class="loc">main.tex:345</span></div><div class="pr info" data-i="14"><span class="lv"></span><span class="msg">Underfull \hbox (badness 2564)</span><span class="loc">main.tex:345</span></div><div class="pr info" data-i="15"><span class="lv"></span><span class="msg">Underfull \hbox (badness 4205)</span><span class="loc">main.tex:476</span></div><div class="pr info" data-i="16"><span class="lv"></span><span class="msg">Underfull \hbox (badness 1881)</span><span class="loc">main.tex:478</span></div><div class="pr info" data-i="17"><span class="lv"></span><span class="msg">Underfull \hbox (badness 1609)</span><span class="loc">main.tex:491</span></div></div>
+    </div>
+  </section>
+
+  <div class="gut" id="gut" title="Drag to resize"></div>
+
+  <section class="pdf">
+    <div class="pbar">
+      <button class="btn" id="zout" title="Zoom out">−</button>
+      <button class="btn" id="zfit" title="Fit width">Fit</button>
+      <button class="btn" id="zin" title="Zoom in">+</button>
+      <span class="pg" id="pg">–</span>
+      <span class="grow"></span>
+      <span class="hide-sm" style="font-size:.74rem;color:var(--faint)" id="phint">Select text: copy, source or AI · <kbd style="font:600 .66rem var(--sans);border:1px solid currentColor;border-radius:4px;padding:0 .25rem">Ctrl</kbd>-click: go to source</span>
+      <button class="btn" id="fwd" title="Show the cursor's line in the PDF (Ctrl/⌘+J)"><svg class="i"><use href="#i-sync"></use></svg>Find in PDF</button>
+    </div>
+    <div class="pages" id="pages"><iframe src="/docs/2610-37400v1-pdf-69bc60/latex/pdf?t=1794244258285" style="border:0;width:100%;height:100%"></iframe></div>
+    <div class="overlay" id="pbusy" hidden=""><div class="spin"></div></div>
+  </section>
+</div>
+
+<div id="selbar" hidden="" role="toolbar" aria-label="Selection"></div>
+
+<aside class="drawer" id="ai" aria-label="Writing assistant">
+  <!-- the reader's chat, Cursor-like: the chat's title (earlier chats), new / compact / clear, the conversation, one composer box -->
+  <header class="chead"><span class="dot"><svg class="i"><use href="#i-spark"></use></svg></span>
+    <select id="chatsel" aria-label="chats" title="This chat; earlier chats"></select>
+    <button class="ib" id="chatnew" type="button" title="New chat" aria-label="new chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg></button>
+    <button class="ib" id="chatcompact" type="button" hidden="" title="Compact: summarise the conversation so far; the assistant goes on from the summary (cheaper and faster for long chats); every message stays here" aria-label="compact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"></path></svg></button>
+    <button class="ib" id="chatclear" type="button" hidden="" title="Clear: empty this conversation; the assistant keeps the paper and its context" aria-label="clear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H9L4 15l10-10 7 7-6 6"></path><path d="M9 11l5 5"></path></svg></button>
+    <button class="ib" id="aix" type="button" aria-label="Close" title="Close">✕</button></header>
+  <div class="aitabs" id="aitabs" hidden=""><button type="button" data-t="chat" class="on">Chat</button><button type="button" data-t="edit">Edit passage</button></div>
+  <div class="chatpane" id="aichat">
+    <div class="chatlog" id="chatlog"></div>
+    <div class="composer"><div class="cbox"><div class="chatpick" id="chatpick" hidden="" role="listbox" aria-label="add context"></div>
+      <div class="cctx" id="cctx"><button id="chatat" class="atbtn" type="button" title="Add a section, figure or table of the paper to the chat (or type @); selected code or PDF text: Ask assistant">@ Add context</button><button id="chatctxclr" class="atbtn ctxclr" type="button" hidden="" title="Drop the passages and the selected code or PDF text from the chat's context (files and snips stay)">Clear context</button><span id="chatrefs" class="chatrefs"></span><div class="chatctx" id="chatctx" hidden=""></div></div>
+      <div class="cctx" id="chatfiles" hidden=""></div>
+      <div class="cctx" id="chatsnips" hidden=""></div>
+      <textarea id="chatq" rows="1" placeholder="Ask about the paper or the LaTeX, or ask for a change… (select code or PDF text, then Ask assistant)" style=""></textarea>
+      <div class="cbar"><select id="chatmodel" aria-label="model" hidden="" title="The model that answers your next message (switch at any time: the new one gets the conversation so far)"></select>
+        <button id="chatfile" class="ib cclip" type="button" title="Attach files (or drop or paste them here): pictures, data, .bib or .tex files go into the project's assets folder for the assistant to use" aria-label="attach files"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9"></path></svg></button>
+        <button id="chatsnip" class="ib cclip" type="button" title="Snip: drag over part of the PDF, mark it up, and it goes with your message (Alt+S)" aria-label="snip part of the PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+        <input id="chatfin" type="file" multiple="" hidden="" style="">
+        <span class="chint">⏎ send · ⇧⏎ new line</span>
+        <button id="chatsend" type="button" aria-label="send" title="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"></path></svg></button></div>
+    </div></div>
+  </div>
+  <div class="dbody" id="aiedit" hidden="">
+    <div class="lbl">Passage</div>
+    <div class="passage none" id="aipass">Select text in the editor — or the paragraph at the cursor is used.</div>
+    <div class="chips" id="aichips">
+      <button class="chip">Improve clarity</button><button class="chip">Fix grammar and spelling</button>
+      <button class="chip">Make it more concise</button><button class="chip">Make it more formal</button>
+      <button class="chip">Turn this into a table</button><button class="chip">Add \label and \ref where useful</button>
+      <button class="chip">Write a caption for this</button>
+    </div>
+    <textarea class="ask" id="aiq" placeholder="What should change? e.g. “Rewrite as a numbered list”, “Fix the error in this equation”" style=""></textarea>
+    <div class="row"><span style="font-size:.76rem;color:var(--faint)">⌘↵ to ask</span>
+      <button class="btn primary" id="aigo"><svg class="i"><use href="#i-spark"></use></svg>Ask</button></div>
+    <div class="err" id="aierr"></div>
+    <div class="result" id="aires" hidden="">
+      <div class="sum" id="aisum"></div>
+      <div class="diff" id="aidiff"></div>
+      <div class="row"><button class="btn" id="aino">Discard</button>
+        <button class="btn primary" id="aiyes">Apply</button></div>
+    </div>
+  </div>
+<div class="drgrip" title="Drag to make it wider or narrower; double-click for the usual width" role="separator" aria-orientation="vertical"></div></aside>
+
+<!-- the Reviewer (tools/reviewer.js draws it, as in the reader) -->
+<aside class="drawer rvp" id="rev" aria-label="Reviewer">
+  <header><span class="dot">✓</span><h3>Reviewer</h3>
+    <button class="rvb" id="revall" type="button" title="Run the four checks">Run all</button>
+    <button class="x" id="revx" aria-label="Close">×</button></header>
+  <div class="dbody"><div class="rvchecks" role="tablist"></div><div class="rvlist"></div></div>
+</aside>
+
+<aside class="drawer" id="hist" aria-label="Versions">
+  <header><svg class="i" style="color:var(--teal)"><use href="#i-clock"></use></svg><h3>Versions</h3>
+    <button class="x" id="hx" aria-label="Close">×</button></header>
+  <div class="dbody" id="hlist"></div>
+</aside>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/brace-fold.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="/static/snip.js"></script>
+<script src="/static/reviewer.js"></script>
+<script src="/static/edits_panel.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; };
+const store = { get(k, d) { try { const v = localStorage.getItem('pp.tex.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+                set(k, v) { try { localStorage.setItem('pp.tex.' + k, JSON.stringify(v)); } catch (e) {} } };
+const ID = location.pathname.split('/')[2];
+const API = '/api/docs/' + ID + '/latex/';
+const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
+if (!isMac) document.querySelectorAll('kbd').forEach(k => k.textContent = k.textContent === '⌘' ? 'Ctrl' : 'Ctrl S');
+
+const S = { proj: null, version: 0, files: {}, cur: null, open: [], problems: [], pdf: null,
+            scale: store.get('scale', null), saving: false, dirtyTimer: null, compiling: false,
+            queuedCompile: false, aiRange: null, aiNew: null, pdfSeq: 0 };
+let cm = null;
+
+function toast(t, ms) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = t;
+  document.body.appendChild(d); setTimeout(() => d.remove(), ms || 2600); }
+function setStatus(text, kind) { $('#stxt').textContent = text; $('#status').className = 'status ' + (kind || ''); }
+/* a reader open in another tab follows each change made here (tools/reader_assist.js listens) */
+const docChan = 'BroadcastChannel' in window ? new BroadcastChannel('pp-doc-' + ID) : null;
+function nudgeReader() { try { if (docChan) docChan.postMessage({ type: 'changed', from: 'latex' }); } catch (e) {} }
+async function api(path, body) {
+  const r = await fetch(body === undefined ? path : API + path, body === undefined ? {} :
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 401) { location.href = '/?signin=1'; throw new Error('sign in'); }
+  if (body !== undefined && r.ok && /^(save|revert|new|upload|resync|patch)$/.test(path)) nudgeReader();
+  return { status: r.status, ...d };
+}
+
+/* ---------------- folding: environments and sections ---------------- */
+const SECT = { part: 0, chapter: 1, section: 2, subsection: 3, subsubsection: 4, paragraph: 5 };
+const HEAD_RE = /\\(part|chapter|section|subsection|subsubsection|paragraph)\*?\s*(\[|\{)/;
+const stripc = s => s.replace(/(^|[^\\])%.*$/, '$1');
+function stexFold(c, start) {
+  const text = c.getLine(start.line), n = c.lineCount();
+  let m = stripc(text).match(/\\begin\{([^}]+)\}/);
+  if (m) {                                   // \begin{env} ... \end{env}
+    const env = m[1]; let depth = 0;
+    const re = new RegExp('\\\\(begin|end)\\{' + env.replace(/[*]/g, '\\*') + '\\}', 'g');
+    for (let i = start.line; i < n; i++) {
+      const l = stripc(c.getLine(i)); re.lastIndex = 0; let x;
+      while ((x = re.exec(l))) {
+        if (x[1] === 'begin') depth++;
+        else if (--depth === 0) {
+          if (i === start.line) return null;
+          return { from: CodeMirror.Pos(start.line, text.length), to: CodeMirror.Pos(i, x.index) };
+        }
+      }
+    }
+    return null;
+  }
+  m = stripc(text).match(HEAD_RE);
+  if (m) {                                   // a section: up to the next heading of its level or higher
+    const lvl = SECT[m[1]];
+    let end = n - 1;
+    for (let i = start.line + 1; i < n; i++) {
+      const l = stripc(c.getLine(i)), h = l.match(HEAD_RE);
+      if ((h && SECT[h[1]] <= lvl) || /\\end\{document\}|\\appendix\b|\\bibliography\{|\\begin\{thebibliography\}|\\printbibliography/.test(l)) { end = i - 1; break; }
+    }
+    while (end > start.line && !c.getLine(end).trim()) end--;
+    if (end <= start.line) return null;
+    return { from: CodeMirror.Pos(start.line, text.length), to: CodeMirror.Pos(end, c.getLine(end).length) };
+  }
+  return CodeMirror.fold.brace ? CodeMirror.fold.brace(c, start) : null;
+}
+function foldAll(on) {
+  if (!cm) return;
+  cm.operation(() => {
+    for (let i = 0; i < cm.lineCount(); i++) {
+      if (!on) { cm.foldCode(CodeMirror.Pos(i, 0), null, 'unfold'); continue; }
+      const l = stripc(cm.getLine(i));
+      if (/\\begin\{(?!document\})/.test(l) || HEAD_RE.test(l)) cm.foldCode(CodeMirror.Pos(i, 0), null, 'fold');
+    }
+  });
+}
+
+/* ---------------- files ---------------- */
+const KIND = { tex: ['TEX', '#0f6b5f'], bib: ['BIB', '#b45309'], sty: ['STY', '#7c3aed'], cls: ['CLS', '#7c3aed'],
+               bst: ['BST', '#57534e'], txt: ['TXT', '#57534e'], image: ['IMG', '#2b5797'], other: ['···', '#948b81'] };
+// a name cut in its stem, so the extension (fig.csv / fig.pdf / fig.py) always shows
+const fname = b => { const d = b.lastIndexOf('.'); return '<span class="fname"><span class="fstem">' +
+  esc(d > 0 ? b.slice(0, d) : b) + '</span><span class="fext">' + esc(d > 0 ? b.slice(d) : '') + '</span></span>'; };
+function renderTree() {
+  $('#treen').textContent = '· ' + S.proj.files.length;
+  $('#tree').innerHTML = S.proj.files.map(f => {
+    const [t, c] = KIND[f.kind] || KIND.other;
+    return '<a href="#" data-p="' + esc(f.path) + '" class="' + (f.path === S.cur ? 'cur ' : '') + (f.editable ? '' : 'ro') +
+      '" title="' + esc(f.path) + (f.editable ? '' : ' (read-only)') + '"><span class="fi" style="background:' + c + '">' + t +
+      '</span><span class="fp">' + (f.path.includes('/') ? '<span class="fdir">' + esc(f.path.slice(0, f.path.lastIndexOf('/') + 1)) +
+      '</span>' : '') + fname(f.path.split('/').pop()) + '</span>' +
+      (f.path === S.proj.main ? '<span class="main-dot">MAIN</span>' : '') + '</a>';
+  }).join('');
+}
+$('#tree').addEventListener('click', e => {
+  const a = e.target.closest('a'); if (!a) return; e.preventDefault();
+  const f = S.proj.files.find(x => x.path === a.dataset.p);
+  if (f && f.editable) openFile(f.path);
+});
+function renderTabs() {
+  $('#tabs').innerHTML = S.open.map(p => {
+    const f = S.files[p];
+    return '<button class="tab' + (p === S.cur ? ' cur' : '') + '" data-p="' + esc(p) + '">' +
+      (f && f.doc && !f.doc.isClean(f.clean) ? '<span class="dirty" title="Not saved yet"></span>' : '') + esc(p.split('/').pop()) +
+      (S.open.length > 1 ? '<span class="x" data-x="1" title="Close">×</span>' : '') + '</button>';
+  }).join('') + '<div class="tools2"><button class="btn" id="foldbtn" title="Fold every section and environment (Ctrl/⌘+Shift+[)">' +
+    '<svg class="i"><use href="#i-fold"/></svg></button><button class="btn" id="unfoldbtn" title="Unfold all (Ctrl/⌘+Shift+])">' +
+    '<svg class="i"><use href="#i-unfold"/></svg></button>' +
+    '<button class="btn" id="findbtn" title="Search (Ctrl/⌘+F)"><svg class="i"><use href="#i-search"/></svg></button></div>';
+  $('#findbtn').onclick = () => cm && cm.execCommand('find');
+  $('#foldbtn').onclick = () => foldAll(true); $('#unfoldbtn').onclick = () => foldAll(false);
+}
+$('#tabs').addEventListener('click', e => {
+  const t = e.target.closest('.tab'); if (!t) return;
+  if (e.target.dataset.x) { closeTab(t.dataset.p); return; }
+  openFile(t.dataset.p);
+});
+function closeTab(p) {
+  const f = S.files[p];
+  if (f && f.doc && !f.doc.isClean(f.clean)) saveNow();
+  S.open = S.open.filter(x => x !== p);
+  if (S.cur === p) openFile(S.open[S.open.length - 1] || S.proj.main);
+  else renderTabs();
+}
+async function openFile(p, line) {
+  if (!S.files[p]) {
+    const d = await api(location.pathname + '/file?path=' + encodeURIComponent(p));
+    if (d.status !== 200) { toast(d.error || 'Could not open ' + p); return; }
+    const mode = /\.(tex|sty|cls|ltx|bib|bst)$/.test(p) ? 'stex' : 'text/plain';
+    S.files[p] = { doc: cm ? CodeMirror.Doc(d.text, mode) : null, text: d.text, outline: d.outline };
+    if (S.files[p].doc) S.files[p].clean = S.files[p].doc.changeGeneration();
+  }
+  if (!S.open.includes(p)) S.open.push(p);
+  S.cur = p;
+  if (cm) { cm.swapDoc(S.files[p].doc); cm.focus(); markProblems(); }
+  else $('#cmwrap textarea').value = S.files[p].text;
+  renderTree(); renderTabs(); renderOutline();
+  if (line) goLine(line);
+}
+function goLine(line) {
+  if (!cm) return;
+  const l = Math.max(0, line - 1);
+  cm.setCursor({ line: l, ch: 0 });
+  cm.scrollIntoView({ line: l, ch: 0 }, cm.getScrollInfo().clientHeight / 3);
+  const h = cm.addLineClass(l, 'background', 'flash');
+  setTimeout(() => cm.removeLineClass(h, 'background', 'flash'), 1500);
+  cm.focus();
+}
+$('#newfile').onclick = async () => {
+  const name = prompt('New file name (e.g. sections/method.tex or refs.bib):');
+  if (!name) return;
+  const d = await api('new', { path: name.trim(), text: /\.bib$/.test(name) ? '' : '% ' + name.trim() + '\n', base: S.version });
+  if (d.status !== 200) { toast(d.error || 'Could not create it'); return; }
+  S.version = d.version; await reloadProject(); openFile(name.trim());
+};
+
+/* ---------------- outline ---------------- */
+function outlineOf(text) {
+  const out = []; const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const s = lines[i].replace(/(^|[^\\])%.*$/, '$1');
+    const m = /\\(part|chapter|section|subsection|subsubsection)\*?\s*(?:\[[^\]]*\])?\s*\{([^}]*)/.exec(s);
+    if (m) out.push({ level: { part: 0, chapter: 0, section: 1, subsection: 2, subsubsection: 3 }[m[1]], title: m[2], line: i + 1 });
+    else if (/\\begin\{abstract\}/.test(s)) out.push({ level: 1, title: 'Abstract', line: i + 1, meta: true });
+    else if (/\\(bibliography\{|printbibliography)/.test(s)) out.push({ level: 1, title: 'References', line: i + 1, meta: true });
+    else if (/\\appendix\b/.test(s)) out.push({ level: 1, title: 'Appendix', line: i + 1, meta: true });
+  }
+  return out;
+}
+function renderOutline() {
+  const text = cm ? cm.getValue() : (S.files[S.cur] || {}).text || '';
+  const o = outlineOf(text);
+  $('#outlinen').textContent = o.length ? '· ' + o.length : '';
+  $('#outline').innerHTML = o.length ? o.map(x => '<a href="#" class="l' + Math.max(1, x.level) + (x.meta ? ' meta' : '') +
+    '" data-l="' + x.line + '">' + esc(x.title || '(untitled)') + '</a>').join('') : '<div class="empty">No sections in this file.</div>';
+}
+$('#outline').addEventListener('click', e => { const a = e.target.closest('a'); if (!a) return; e.preventDefault(); goLine(+a.dataset.l); });
+// Files and Outline fold from their headings; a folded one shows its count
+function sideFold(k, open) {
+  const b = document.querySelector('[data-fold="' + k + '"]');
+  b.setAttribute('aria-expanded', open ? 'true' : 'false'); $('#' + b.getAttribute('aria-controls')).hidden = !open;
+  store.set('fold.' + k, !open);
+}
+document.querySelectorAll('[data-fold]').forEach(b => {
+  sideFold(b.dataset.fold, !store.get('fold.' + b.dataset.fold, false));
+  b.onclick = () => sideFold(b.dataset.fold, b.getAttribute('aria-expanded') !== 'true');
+});
+
+/* ---------------- save + compile ---------------- */
+function dirtyFiles() {
+  const out = {};
+  for (const [p, f] of Object.entries(S.files)) if (f.doc && !f.doc.isClean(f.clean)) out[p] = f.doc.getValue();
+  if (!cm && S.cur) { const v = $('#cmwrap textarea').value; if (v !== S.files[S.cur].text) out[S.cur] = v; }
+  return out;
+}
+async function saveNow() {
+  clearTimeout(S.dirtyTimer);
+  const files = dirtyFiles();
+  if (!Object.keys(files).length) return true;
+  if (S.saving) { S.saveAgain = true; return true; }
+  S.saving = true; setStatus('Saving…', 'busy');
+  const gens = {}; for (const p in files) gens[p] = S.files[p].doc ? S.files[p].doc.changeGeneration() : null;
+  try {
+    const d = await api('save', { files, base: S.version });
+    if (d.status === 409 && d.conflict) { $('#conflict').hidden = false; setStatus('Changed elsewhere', 'bad'); return false; }
+    if (d.status !== 200) { setStatus('Not saved', 'bad'); toast(d.error || 'Save failed'); return false; }
+    S.version = d.version;
+    for (const p in files) { if (S.files[p].doc) S.files[p].clean = gens[p]; else S.files[p].text = files[p]; }
+    renderTabs();
+    setStatus('Saved · v' + S.version + (S.proj.synced ? ' · reader updated' : S.proj.draft ? '' : ' · reader updating'));
+    return true;
+  } finally {
+    S.saving = false;
+    if (S.saveAgain) { S.saveAgain = false; saveNow(); }
+  }
+}
+function scheduleSave() {
+  clearTimeout(S.dirtyTimer);
+  setStatus('Editing…');
+  S.dirtyTimer = setTimeout(async () => { if (await saveNow() && $('#auto').checked) compile(); }, 1400);
+}
+async function compile() {
+  if (S.compiling) { S.queuedCompile = true; return; }
+  if (!(await saveNow())) return;
+  S.compiling = true; $('#compile').disabled = true; $('#pbusy').hidden = false; setStatus('Compiling…', 'busy');
+  try {
+    const d = await api('compile', {});
+    S.problems = d.problems || [];
+    renderProblems(d);
+    const ne = S.problems.filter(p => p.level === 'error').length;
+    if (d.pdf_url) { await loadPdf(d.pdf_url); }
+    setStatus((ne ? ne + ' error' + (ne > 1 ? 's' : '') + ' · ' : 'Compiled · ') + d.seconds + ' s' + (d.stale ? ' · PDF not updated' : ''),
+              ne ? 'bad' : '');
+    if (ne && $('#plist').hidden) toggleProblems(true);
+  } catch (e) { console.warn('compile:', e); setStatus('Compile failed', 'bad'); }
+  finally {
+    S.compiling = false; $('#compile').disabled = false; $('#pbusy').hidden = true;
+    if (S.queuedCompile) { S.queuedCompile = false; compile(); }
+  }
+}
+$('#compile').onclick = compile;
+$('#auto').checked = store.get('auto', true);
+$('#auto').onchange = e => store.set('auto', e.target.checked);
+
+/* ---------------- problems ---------------- */
+function renderProblems(d) {
+  const n = l => S.problems.filter(p => p.level === l).length;
+  $('#ce').textContent = n('error'); $('#cw').textContent = n('warning'); $('#ci').textContent = n('info');
+  $('#ptime').textContent = d && d.seconds != null ? 'compiled in ' + d.seconds + ' s' : '';
+  $('#plist').innerHTML = S.problems.length ? S.problems.map((p, i) =>
+    '<div class="pr ' + p.level + '" data-i="' + i + '"><span class="lv"></span><span class="msg">' + esc(p.message) +
+    (p.context ? '<span class="ctx">' + esc(p.context) + '</span>' : '') + '</span><span class="loc">' + esc(p.file || '') +
+    (p.line ? ':' + p.line : '') + '</span>' + (p.level === 'error' && p.line && S.proj.assistant ?
+      '<button class="fix" data-fix="' + i + '">Fix with AI</button>' : '') + '</div>').join('')
+    : '<div class="empty" style="padding:.7rem .8rem">No problems — the paper compiles cleanly.</div>';
+  markProblems();
+}
+function markProblems() {
+  if (!cm) return;
+  cm.clearGutter('pp-marks');
+  (S.marks || []).forEach(h => { cm.removeLineClass(h.l, 'background', h.c); });
+  S.marks = [];
+  for (const p of S.problems) {
+    if (p.file !== S.cur || !p.line || p.level === 'info') continue;
+    const l = p.line - 1, c = p.level === 'error' ? 'errline' : 'warnline';
+    const h = cm.addLineClass(l, 'background', c); if (h) S.marks.push({ l: h, c });
+    const m = document.createElement('div'); m.className = 'gm ' + p.level; m.title = p.message;
+    cm.setGutterMarker(l, 'pp-marks', m);
+  }
+}
+function toggleProblems(open) {
+  const show = open === undefined ? $('#plist').hidden : open;
+  $('#plist').hidden = !show; $('#pchev').style.transform = show ? 'rotate(180deg)' : '';
+}
+$('#probh').onclick = () => toggleProblems();
+$('#plist').addEventListener('click', async e => {
+  const fix = e.target.closest('[data-fix]');
+  const row = e.target.closest('.pr'); if (!row) return;
+  const p = S.problems[+row.dataset.i];
+  if (p.file && S.proj.files.some(f => f.path === p.file && f.editable)) await openFile(p.file, p.line);
+  if (fix && cm) {               // the lines around the error, to the assistant
+    const a = Math.max(0, p.line - 8), b = Math.min(cm.lineCount() - 1, p.line + 6);
+    cm.setSelection({ line: a, ch: 0 }, { line: b, ch: cm.getLine(b).length });
+    openAI('Fix this LaTeX error: ' + p.message + (p.context ? ' (' + p.context + ')' : ''), p.message);
+  }
+});
+
+/* ---------------- PDF ---------------- */
+if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const pagesEl = $('#pages');
+async function loadPdf(url) {
+  if (!window.pdfjsLib) {           // no pdf.js: the browser's own viewer
+    pagesEl.innerHTML = '<iframe src="' + url + '" style="border:0;width:100%;height:100%"></iframe>'; return;
+  }
+  // loads can overlap (the last PDF on open, then a fresh compile): the
+  // newest one wins, an older one stops quietly
+  const my = ++S.pdfSeq;
+  const keep = pagesEl.scrollHeight ? pagesEl.scrollTop / pagesEl.scrollHeight : 0;
+  let doc;
+  try { doc = await pdfjsLib.getDocument(url).promise; }
+  catch (e) { if (my === S.pdfSeq) toast('Could not open the PDF'); return; }
+  if (my !== S.pdfSeq) { doc.destroy(); return; }
+  const old = S.pdf;
+  S.pdf = doc;
+  try { await renderPages(my); }
+  catch (e) { if (my === S.pdfSeq) console.warn('PDF render:', e); }
+  if (old && old !== doc) old.destroy();
+  if (my !== S.pdfSeq) return;
+  pagesEl.scrollTop = keep * pagesEl.scrollHeight;
+  $('#dlpdf').href = url;
+}
+async function renderPages(my) {
+  const doc = S.pdf; if (!doc) return;
+  if (my === undefined) my = S.pdfSeq;
+  const first = await doc.getPage(1);
+  const base = first.getViewport({ scale: 1 });
+  const fit = (pagesEl.clientWidth - 40) / base.width;
+  const scale = S.scale || fit;
+  const dpr = window.devicePixelRatio || 1;
+  const frag = document.createDocumentFragment(), jobs = [];
+  for (let n = 1; n <= doc.numPages; n++) {
+    const page = n === 1 ? first : await doc.getPage(n);
+    const vp = page.getViewport({ scale });
+    const div = document.createElement('div'); div.className = 'page'; div.dataset.n = n;
+    div.style.width = vp.width + 'px'; div.style.height = vp.height + 'px';
+    const c = document.createElement('canvas'); c.width = Math.floor(vp.width * dpr); c.height = Math.floor(vp.height * dpr);
+    c.style.width = vp.width + 'px'; c.style.height = vp.height + 'px';
+    div.appendChild(c); frag.appendChild(div);
+    jobs.push(page.render({ canvasContext: c.getContext('2d'), viewport: page.getViewport({ scale: scale * dpr }) }).promise);
+    div._scale = scale;
+    if (pdfjsLib.renderTextLayer) {           // selectable text over the image
+      const tl = document.createElement('div'); tl.className = 'textLayer';
+      tl.style.setProperty('--scale-factor', scale);
+      div.appendChild(tl);
+      jobs.push(pdfjsLib.renderTextLayer({ textContentSource: page.streamTextContent(), container: tl,
+        viewport: vp }).promise.then(() => {
+          const end = document.createElement('div'); end.className = 'endOfContent'; tl.appendChild(end);
+        }).catch(() => {}));
+    }
+  }
+  if (my !== S.pdfSeq) return;           // a newer PDF took over
+  pagesEl.innerHTML = ''; pagesEl.appendChild(frag);
+  await Promise.all(jobs);
+  updatePageNo();
+}
+function updatePageNo() {
+  if (!S.pdf) return;
+  const ps = [...pagesEl.querySelectorAll('.page')], mid = pagesEl.scrollTop + pagesEl.clientHeight / 3;
+  let n = 1; for (const p of ps) if (p.offsetTop <= mid) n = +p.dataset.n;
+  $('#pg').textContent = n + ' / ' + S.pdf.numPages;
+}
+pagesEl.addEventListener('scroll', updatePageNo, { passive: true });
+function zoom(f) {
+  const cur = (pagesEl.querySelector('.page') || {})._scale || 1;
+  S.scale = f === 'fit' ? null : Math.min(4, Math.max(.4, cur * f)); store.set('scale', S.scale); renderPages();
+}
+$('#zin').onclick = () => zoom(1.15); $('#zout').onclick = () => zoom(1 / 1.15); $('#zfit').onclick = () => zoom('fit');
+let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { clampPdf(); if (!S.scale) renderPages(); }, 200); });
+
+// selecting: the text layer's end marker follows the mouse, so a drag past
+// the last line still selects (as in pdf.js's own viewer)
+pagesEl.addEventListener('mousedown', e => {
+  const tl = e.target.closest('.textLayer'); if (tl) tl.classList.add('selecting');
+});
+addEventListener('mouseup', () => pagesEl.querySelectorAll('.textLayer.selecting').forEach(t => t.classList.remove('selecting')));
+// copied text: ligatures as letters, soft hyphens and the text layer's
+// stray line ends tidied
+pagesEl.addEventListener('copy', e => {
+  const sel = getSelection(); if (!sel || sel.isCollapsed) return;
+  const LIG = { '\ufb00': 'ff', '\ufb01': 'fi', '\ufb02': 'fl', '\ufb03': 'ffi', '\ufb04': 'ffl', '\ufb05': 'st', '\ufb06': 'st' };
+  const t = sel.toString().replace(/[\ufb00-\ufb06]/g, c => LIG[c]).replace(/\u00ad/g, '').replace(/[ \t]+\n/g, '\n');
+  e.clipboardData.setData('text/plain', t); e.preventDefault();
+});
+// Ctrl/Cmd held: pages show a pointer, a click jumps to the source line
+addEventListener('keydown', e => { if (e.key === 'Control' || e.key === 'Meta') pagesEl.querySelectorAll('.page').forEach(p => p.classList.add('jump')); });
+addEventListener('keyup', e => { if (e.key === 'Control' || e.key === 'Meta') pagesEl.querySelectorAll('.page').forEach(p => p.classList.remove('jump')); });
+addEventListener('blur', () => pagesEl.querySelectorAll('.page.jump').forEach(p => p.classList.remove('jump')));
+// SyncTeX: Ctrl/Cmd+click the PDF -> the source line (a double-click
+// selects a word, as in any PDF viewer)
+pagesEl.addEventListener('click', async e => {
+  if (!(e.ctrlKey || e.metaKey)) return;
+  e.preventDefault();
+  const pg = e.target.closest('.page'); if (!pg) return;
+  const r = pg.getBoundingClientRect(), sc = pg._scale;
+  const x = (e.clientX - r.left) / sc, y = (e.clientY - r.top) / sc;
+  const d = await api(location.pathname + '/synctex?page=' + pg.dataset.n + '&x=' + x.toFixed(1) + '&y=' + y.toFixed(1));
+  if (d.source) { if (window.matchMedia('(max-width:900px)').matches) showPane('ed'); await openFile(d.source.file, d.source.line); }
+  else toast('No source found at that spot');
+});
+// and the cursor's line -> its place in the PDF
+async function forward() {
+  if (!cm || !S.cur) return;
+  const line = cm.getCursor().line + 1;
+  const d = await api(location.pathname + '/synctex?file=' + encodeURIComponent(S.cur) + '&line=' + line);
+  if (!d.boxes || !d.boxes.length) { toast(S.pdf ? 'This line is not in the PDF (yet) — compile first?' : 'Compile first'); return; }
+  if (window.matchMedia('(max-width:900px)').matches) showPane('pdf');
+  pagesEl.querySelectorAll('.hl').forEach(h => h.remove());
+  let firstEl = null;
+  for (const b of d.boxes) {
+    const pg = pagesEl.querySelector('.page[data-n="' + b.page + '"]'); if (!pg) continue;
+    const sc = pg._scale, h = document.createElement('div'); h.className = 'hl';
+    h.style.left = (b.x * sc - 3) + 'px'; h.style.top = (b.y * sc - 2) + 'px';
+    h.style.width = (Math.max(b.w, 40) * sc + 6) + 'px'; h.style.height = (Math.max(b.h, 8) * sc + 4) + 'px';
+    pg.appendChild(h); if (!firstEl) firstEl = h;
+  }
+  if (firstEl) firstEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+$('#fwd').onclick = forward;
+
+/* ---------------- resizer, panes ---------------- */
+const main = $('#main');
+main.style.setProperty('--pdfw', store.get('pdfw', '1fr'));
+if (store.get('noside', false)) main.classList.add('noside');
+/* the PDF as wide as it was dragged, but never so wide that the editor is squeezed out */
+const pdfMax = () => Math.max(260, innerWidth - (main.classList.contains('noside') ? 0 : $('.side').offsetWidth) - 6 - 360);
+function clampPdf() { const v = main.style.getPropertyValue('--pdfw');
+  if (/px$/.test(v) && parseFloat(v) > pdfMax()) main.style.setProperty('--pdfw', pdfMax() + 'px'); }
+clampPdf();
+$('#sidebtn').onclick = () => { main.classList.toggle('noside'); store.set('noside', main.classList.contains('noside'));
+  clampPdf(); cm && cm.refresh(); if (!S.scale && S.pdf) renderPages(); };
+$('#gut').addEventListener('pointerdown', e => {
+  e.preventDefault(); const g = $('#gut'); g.classList.add('drag'); g.setPointerCapture(e.pointerId);
+  const move = ev => { const w = Math.min(Math.max(innerWidth - ev.clientX, 260), pdfMax());
+                       main.style.setProperty('--pdfw', w + 'px'); };
+  const up = () => { g.classList.remove('drag'); g.removeEventListener('pointermove', move); g.removeEventListener('pointerup', up);
+                     store.set('pdfw', main.style.getPropertyValue('--pdfw')); cm && cm.refresh(); if (!S.scale) renderPages(); };
+  g.addEventListener('pointermove', move); g.addEventListener('pointerup', up);
+});
+function showPane(w) { main.classList.toggle('showpdf', w === 'pdf'); $('#m-ed').classList.toggle('on', w !== 'pdf');
+  $('#m-pdf').classList.toggle('on', w === 'pdf'); if (w === 'pdf' && S.pdf) renderPages(); else cm && cm.refresh(); }
+$('#m-ed').onclick = () => showPane('ed'); $('#m-pdf').onclick = () => showPane('pdf');
+
+/* ---------------- assistant ---------------- */
+function passageRange() {
+  if (!cm) return null;
+  if (cm.somethingSelected()) { const s = cm.listSelections()[0]; const a = s.anchor, h = s.head;
+    const from = CodeMirror.cmpPos(a, h) < 0 ? a : h, to = from === a ? h : a; return { from, to }; }
+  // the paragraph at the cursor: lines up to the blank ones around it
+  let a = cm.getCursor().line, b = a;
+  while (a > 0 && cm.getLine(a - 1).trim()) a--;
+  while (b < cm.lineCount() - 1 && cm.getLine(b + 1).trim()) b++;
+  return { from: { line: a, ch: 0 }, to: { line: b, ch: cm.getLine(b).length } };
+}
+function openAI(instruction, problem) {
+  if (!S.proj.assistant) { toast('The assistant needs ANTHROPIC_API_KEY in .env'); return; }
+  closeDrawers(); aiShow('edit');
+  S.aiRange = passageRange(); S.aiProblem = problem || null;
+  const t = S.aiRange ? cm.getRange(S.aiRange.from, S.aiRange.to) : '';
+  $('#aipass').textContent = t || 'Select text in the editor — or the paragraph at the cursor is used.';
+  $('#aipass').classList.toggle('none', !t);
+  $('#aires').hidden = true; $('#aierr').textContent = '';
+  if (instruction) $('#aiq').value = instruction;
+  $('#ai').classList.add('open'); setTimeout(() => $('#aiq').focus(), 50);
+}
+$('#aibtn').onclick = () => openDrawerAI();
+function openDrawerAI(tab) {
+  if (!S.proj.assistant) { toast('The assistant needs ANTHROPIC_API_KEY in .env'); return; }
+  closeDrawers(); aiShow(tab || aiTab); $('#ai').classList.add('open');
+  setTimeout(() => $(aiTab === 'chat' ? '#chatq' : '#aiq').focus(), 60);
+}
+$('#aix').onclick = () => {   // still selected: the pop-up comes back for the next action
+  $('#ai').classList.remove('open'); if (cm && cm.somethingSelected()) setTimeout(codeSelection, 220); };
+$('#aichips').addEventListener('click', e => { const c = e.target.closest('.chip'); if (!c) return; $('#aiq').value = c.textContent; askAI(); });
+$('#aiq').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); askAI(); } });
+$('#aigo').onclick = askAI;
+async function askAI() {
+  if (!cm || !S.aiRange) { $('#aierr').textContent = 'Put the cursor in the text first.'; return; }
+  const q = $('#aiq').value.trim(); if (!q) { $('#aiq').focus(); return; }
+  const r = S.aiRange, passage = cm.getRange(r.from, r.to);
+  const before = cm.getRange({ line: Math.max(0, r.from.line - 40), ch: 0 }, r.from);
+  const after = cm.getRange(r.to, { line: Math.min(cm.lineCount() - 1, r.to.line + 40), ch: 1e6 });
+  $('#aigo').disabled = true; $('#aierr').textContent = ''; $('#aires').hidden = true;
+  $('#aigo').innerHTML = '<span class="spin" style="width:1rem;height:1rem;border-width:2px"></span>Thinking…';
+  try {
+    const d = await api('assist', { instruction: q, passage, before, after, problem: S.aiProblem });
+    if (d.status !== 200) { $('#aierr').textContent = d.error || 'The assistant failed.'; return; }
+    S.aiNew = d.text; S.aiOld = passage;
+    $('#aisum').textContent = d.summary;
+    $('#aidiff').innerHTML = wordDiff(passage, d.text);
+    $('#aires').hidden = false;
+  } finally { $('#aigo').disabled = false; $('#aigo').innerHTML = '<svg class="i"><use href="#i-spark"/></svg>Ask'; }
+}
+$('#aino').onclick = () => { $('#aires').hidden = true; S.aiNew = null; };
+$('#aiyes').onclick = () => {
+  const r = S.aiRange;
+  if (S.aiNew == null || !r) return;
+  if (cm.getRange(r.from, r.to) !== S.aiOld) { $('#aierr').textContent = 'The passage changed meanwhile; ask again.'; return; }
+  cm.replaceRange(S.aiNew, r.from, r.to, '+assistant');
+  const end = cm.posFromIndex(cm.indexFromPos(r.from) + S.aiNew.length);
+  cm.setSelection(r.from, end);
+  $('#ai').classList.remove('open'); S.aiNew = null;
+  toast('Applied — Ctrl/⌘+Z undoes it');
+  cm.focus();
+};
+function wordDiff(a, b) {
+  const A = a.match(/\s+|[^\s]+/g) || [], B = b.match(/\s+|[^\s]+/g) || [];
+  if (A.length * B.length > 4e6) return '<del>' + esc(a) + '</del>\n<ins>' + esc(b) + '</ins>';
+  const n = A.length, m = B.length, L = Array.from({ length: n + 1 }, () => new Uint32Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
+    L[i][j] = A[i] === B[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  let i = 0, j = 0, out = '';
+  while (i < n && j < m) {
+    if (A[i] === B[j]) { out += esc(A[i]); i++; j++; }
+    else if (L[i + 1][j] >= L[i][j + 1]) out += '<del>' + esc(A[i++]) + '</del>';
+    else out += '<ins>' + esc(B[j++]) + '</ins>';
+  }
+  while (i < n) out += '<del>' + esc(A[i++]) + '</del>';
+  while (j < m) out += '<ins>' + esc(B[j++]) + '</ins>';
+  return out;
+}
+
+/* ---------------- selection bar (as in the reader) ---------------- */
+const selbar = $('#selbar');
+const SPARK = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 5.4L19 9.2l-5.2 1.8L12 16.4l-1.8-5.4L5 9.2l5.2-1.8z"/></svg>';
+const ico = n => '<svg class="i"><use href="#i-' + n + '"/></svg>';
+let selFrom = null;                   // 'code' or 'pdf'
+let pdfRange = null;                  // the PDF selection (a tap on the bar can clear it)
+function placeBar(rect) {
+  selbar.hidden = false;
+  const w = selbar.offsetWidth, h = selbar.offsetHeight;
+  const x = Math.max(8, Math.min(innerWidth - w - 8, rect.left + rect.width / 2 - w / 2));
+  let y = rect.top - h - 10;
+  // touch: the phone's own Copy menu sits above the selection; go below it
+  if (touchSel || y < 60) y = Math.min(rect.bottom + (touchSel ? 28 : 10), innerHeight - h - 8);
+  y = Math.max(8, y);
+  selbar.style.left = x + 'px'; selbar.style.top = y + 'px';
+}
+function hideBar() { selbar.hidden = true; selFrom = null; }
+function codeSelection() {
+  if (!cm || !cm.somethingSelected() || $('#ai').classList.contains('open')) { if (selFrom === 'code') hideBar(); return; }
+  const r = cm.listSelections()[0];
+  const a = cm.charCoords(CodeMirror.cmpPos(r.anchor, r.head) < 0 ? r.anchor : r.head, 'window');
+  const z = cm.charCoords(CodeMirror.cmpPos(r.anchor, r.head) < 0 ? r.head : r.anchor, 'window');
+  selFrom = 'code';
+  selbar.innerHTML = (S.proj.assistant ? '<button class="ai" data-a="ask">' + SPARK + 'Ask assistant</button>' +
+    '<button data-a="rw" title="Rewrite this passage with an instruction">' + ico('pen') + 'Rewrite…</button><span class="sep"></span>' +
+    '<button data-a="q" data-q="Improve clarity">Improve</button><button data-a="q" data-q="Fix grammar and spelling">Grammar</button>' +
+    '<button data-a="q" data-q="Make it more concise">Shorter</button><span class="sep"></span>' : '') +
+    '<button data-a="fwd">' + ico('sync') + 'Find in PDF</button>';
+  placeBar({ left: Math.min(a.left, z.left), right: Math.max(a.right, z.right), top: a.top, bottom: z.bottom,
+             width: Math.abs(z.left - a.left) || 1 });
+}
+function pdfSelection() {
+  const sel = getSelection();
+  if (!sel || sel.isCollapsed || !sel.rangeCount) { if (selFrom === 'pdf') hideBar(); return; }
+  const r = sel.getRangeAt(0);
+  if (!pagesEl.contains(r.commonAncestorContainer) || !sel.toString().trim()) { if (selFrom === 'pdf') hideBar(); return; }
+  selFrom = 'pdf'; pdfRange = r.cloneRange();
+  selbar.innerHTML = '<button data-a="copy">' + ico('doc') + 'Copy</button><span class="sep"></span>' +
+    '<button data-a="src">' + ico('sync') + 'Go to source</button>' +
+    (S.proj.assistant ? '<span class="sep"></span><button class="ai" data-a="pask">' + SPARK + 'Ask assistant</button>' : '');
+  placeBar(r.getBoundingClientRect());
+}
+// a PDF selection -> the source lines it came from (SyncTeX at both ends)
+async function pdfToSource() {
+  const sel = getSelection();
+  const rg = sel && sel.rangeCount && !sel.isCollapsed ? sel.getRangeAt(0) : pdfRange;
+  if (!rg) return null;
+  const rects = [...rg.getClientRects()].filter(x => x.width > 1);
+  if (!rects.length) return null;
+  const at = async rc => {
+    const pg = [...pagesEl.querySelectorAll('.page')].find(p => { const b = p.getBoundingClientRect();
+      return rc.top + 2 >= b.top && rc.top <= b.bottom; });
+    if (!pg) return null;
+    const b = pg.getBoundingClientRect(), sc = pg._scale;
+    const d = await api(location.pathname + '/synctex?page=' + pg.dataset.n + '&x=' + ((rc.left - b.left + 2) / sc).toFixed(1) +
+                        '&y=' + ((rc.top - b.top + rc.height / 2) / sc).toFixed(1));
+    return d.source;
+  };
+  const a = await at(rects[0]), z = await at(rects[rects.length - 1]);
+  if (!a) return null;
+  return { file: a.file, from: a.line, to: z && z.file === a.file ? Math.max(a.line, z.line) : a.line };
+}
+async function selectSource(src) {
+  await openFile(src.file, src.from);
+  const last = Math.min(cm.lineCount(), src.to) - 1;
+  cm.setSelection({ line: src.from - 1, ch: 0 }, { line: last, ch: cm.getLine(last).length });
+  cm.scrollIntoView({ line: src.from - 1, ch: 0 }, 80);
+}
+selbar.addEventListener('mousedown', e => e.preventDefault());   // keep the selection
+selbar.addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const act = b.dataset.a, from = selFrom;
+  if (act === 'copy') {            // the text stays selected for the next action
+    const sel = getSelection();
+    if (sel && !sel.isCollapsed) document.execCommand('copy');
+    else if (pdfRange) navigator.clipboard.writeText(pdfRange.toString().replace(/\u00ad/g, '')).catch(() => {});
+    toast('Copied'); return;
+  }
+  hideBar();
+  if (act === 'ask') {                    // the selected code goes to the chat
+    const r = passageRange(); if (!r) return;
+    chatWith({ file: S.cur, from: r.from.line + 1, to: r.to.line + 1, text: cm.getRange(r.from, r.to) });
+  }
+  else if (act === 'rw') openAI();
+  else if (act === 'q') { openAI(b.dataset.q); askAI(); }
+  else if (act === 'fwd') forward();
+  else if (act === 'pask') {              // the selected PDF text, with where it comes from
+    const text = (pdfRange ? pdfRange.toString() : '').replace(/\u00ad/g, '').replace(/\s+/g, ' ').trim();
+    const src = await pdfToSource();
+    getSelection().removeAllRanges();
+    chatWith(Object.assign({ pdf: text }, src ? { file: src.file, from: src.from, to: src.to } : {}));
+  }
+  else if (act === 'src') {
+    const src = await pdfToSource();
+    if (!src) { toast('No source found for that text'); return; }
+    if (window.matchMedia('(max-width:900px)').matches) showPane('ed');
+    await selectSource(src);
+    getSelection().removeAllRanges();
+  }
+});
+document.addEventListener('mouseup', e => {
+  if (e.target.closest('#selbar')) return;
+  setTimeout(() => { if (e.target.closest('.CodeMirror')) codeSelection(); else if (e.target.closest('#pages')) pdfSelection();
+                     else if (!e.target.closest('.drawer')) hideBar(); }, 10);
+});
+document.addEventListener('keyup', e => { if (e.shiftKey || e.key === 'Shift') setTimeout(codeSelection, 10); });
+pagesEl.addEventListener('scroll', () => { if (selFrom === 'pdf') hideBar(); }, { passive: true });
+/* phones and tablets: a long-press selection sends no mouseup, only
+   selectionchange (CodeMirror: cursorActivity, above) */
+let touchSel = false, selT = 0;
+document.addEventListener('pointerdown', e => {
+  if (!e.target.closest('#selbar')) touchSel = e.pointerType === 'touch' || e.pointerType === 'pen'; }, true);
+document.addEventListener('touchstart', e => { if (!e.target.closest('#selbar')) touchSel = true; },
+                          { capture: true, passive: true });
+document.addEventListener('selectionchange', () => {
+  if (!touchSel) return;
+  const sel = getSelection();
+  if (!sel || !sel.rangeCount || !pagesEl.contains(sel.anchorNode)) return;
+  clearTimeout(selT); selT = setTimeout(pdfSelection, 350);
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideBar(); });
+
+/* ---------------- chat (the reader's, for the LaTeX project) ---------------- */
+// the chat only (the older Edit passage tab is not offered any more)
+let aiTab = 'chat', chatId = null, chatBusy = false, chatCtx = null, chatOpened = false;
+let models = [], modelDefault = '', chatModel = null;
+function aiShow(t) {
+  aiTab = t; store.set('aitab', t);
+  document.querySelectorAll('#aitabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  $('#aichat').hidden = t !== 'chat'; $('#aiedit').hidden = t === 'chat';
+  if (t === 'chat') chatOpen();
+}
+document.querySelectorAll('#aitabs button').forEach(b => b.onclick = () => { aiShow(b.dataset.t); });
+const ago = t => { const s = Math.max(1, Math.round(Date.now() / 1000 - t));
+  if (s < 60) return 'just now'; if (s < 3600) return Math.round(s / 60) + ' min ago';
+  if (s < 86400) return Math.round(s / 3600) + ' h ago';
+  return new Date(t * 1000).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }); };
+// main.tex:120 in a reply -> a link into the editor
+const FREF = /(?<![\w\/.])([\w.\/-]+\.(?:tex|bib|sty|cls|ltx)):(\d+)(?:[-–](\d+))?/g;
+const knownFile = f => (S.proj.files || []).find(x => x.path === f || x.path.endsWith('/' + f));
+/* [b21] in a reply (the reader's blocks, which the chat cites) -> a chip named as in the reader
+   (¶ first words…, Table 8, Eq. 3) that opens the LaTeX it comes from */
+const BREF = /\[((?:[bn]\d+(?:_\d+)?)(?:[,;]\s*[^\]]*)?)\]/g;
+let BLK = {};
+const blocksLoad = () => fetch('/docs/' + ID + '/latex/blocks.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {})
+  .then(d => { BLK = d.blocks || {}; PICK = d.pick || [];   // replies drawn before the names came are drawn again
+    document.querySelectorAll('#chatlog .mdt').forEach(e => { if (e._src != null && BRE.test(e._src)) e.innerHTML = md(e._src); }); })
+  .catch(() => {});
+const BRE = /\[[bn]\d/;
+function bref(id) { const b = BLK[id];
+  if (!b) return Object.keys(BLK).length ? '<span class="bref gone" title="' + id + ': no longer in the paper">removed passage</span>' : id;
+  return b.f && knownFile(b.f) ? '<a href="#" class="fref bref" data-f="' + esc(b.f) + '" data-l="' + b.l + '" title="' + id + ': show it in the LaTeX">' + esc(b.n) + '</a>'
+    : '<span class="bref" title="' + id + '">' + esc(b.n) + '</span>'; }
+/* typewriter quotes as a typesetter sets them (on escaped text) */
+const curly = x => x.replace(/(^|[\s(\[{*_\u2013\u2014-])(?:&quot;|")/g, '$1\u201c').replace(/&quot;|"/g, '\u201d')
+  .replace(/(^|[\s(\[{*_\u2013\u2014-])'/g, '$1\u2018').replace(/'/g, '\u2019').replace(/ -- /g, ' \u2013 ');
+function md(src) {
+  const code = []; let t = String(src || '');
+  t = t.replace(/```[\w-]*\n?([\s\S]*?)(```|$)/g, (_m, c) => { code.push('<pre><code>' + esc(c) + '</code></pre>'); return '\u0000' + (code.length - 1) + '\u0000'; });
+  const lines = esc(t).split('\n'), out = []; let list = null, para = [], gap = false;
+  const inl = x => { const cs = [];
+    x = x.replace(/`([^`]+)`/g, (_m, c) => { cs.push('<code>' + c + '</code>'); return '\u0001' + (cs.length - 1) + '\u0001'; });
+    return curly(x).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .replace(/(^|[^*\w])\*([^*\n]+)\*/g, '$1<i>$2</i>').replace(/\u0001(\d+)\u0001/g, (_m, i) => cs[+i])
+    .replace(FREF, (m, f, a) => knownFile(f) ? '<a href="#" class="fref" data-f="' + esc(f) + '" data-l="' + a + '">' + m + '</a>' : m)
+    .replace(BREF, (m, inner) => { const o = inner.replace(/\b[bn]\d+(?:_\d+)?\b/g, bref);
+      // only chips (and commas): no brackets around them
+      return /^(?:\s*<(a|span) [^>]*>[^<]*<\/\1>\s*[,;]?)+$/.test(o) ? o : '[' + o + ']'; }); };
+  const flush = () => { if (para.length) { out.push('<p>' + inl(para.join(' ')) + '</p>'); para = []; } };
+  let quote = [];                       // > lines: a quotation
+  const flushQ = () => { if (quote.length) { out.push('<blockquote>' + inl(quote.join(' ')) + '</blockquote>'); quote = []; } };
+  const endList = () => { if (list) { out.push('</' + list + '>'); list = null; } };
+  // a table: | a | b | lines, the second |---| making the first its head
+  let tbl = [];
+  const flushT = () => { if (!tbl.length) return;
+    const rows = tbl.map(r => r.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim())); tbl = [];
+    const sep = rows.length > 1 && rows[1].every(c => /^:?-{2,}:?$/.test(c)), head = sep ? rows.shift() : null;
+    if (sep) rows.shift();
+    out.push('<div class="mtab"><table>' + (head ? '<thead><tr>' + head.map(c => '<th>' + inl(c) + '</th>').join('') + '</tr></thead>' : '') +
+      '<tbody>' + rows.map(r => '<tr>' + r.map(c => '<td>' + inl(c) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div>'); };
+  lines.forEach(l => { let m;
+    if (/^\s*\|.*\|\s*$/.test(l)) { flush(); endList(); tbl.push(l); return; }
+    flushT();
+    if ((m = l.match(/^\s*&gt;\s?(.*)$/))) { flush(); endList(); if (m[1].trim()) quote.push(m[1]); else flushQ(); return; }
+    flushQ();
+    if (/^\u0000\d+\u0000$/.test(l.trim())) { flush(); endList(); out.push(l.trim()); return; }
+    if (/^\s*([-*_])(\s*\1){2,}\s*$/.test(l)) { flush(); endList(); out.push('<hr>'); return; }
+    if ((m = l.match(/^(#{1,4})\s+(.*)/))) { flush(); endList(); out.push('<h5>' + inl(m[2]) + '</h5>'); return; }
+    if ((m = l.match(/^\s*([-*•]|\d+[.)])\s+(.*)/))) { flush(); const k = /\d/.test(m[1]) ? 'ol' : 'ul'; gap = false;
+      if (list !== k) { endList(); out.push('<' + k + '>'); list = k; } out.push('<li>' + inl(m[2]) + '</li>'); return; }
+    if (!l.trim()) { flush(); if (list) gap = true; return; }
+    if (gap) { endList(); gap = false; }
+    if (list && /^\s{2,}/.test(l)) { out[out.length - 1] = out[out.length - 1].replace(/<\/li>$/, ' ' + inl(l.trim()) + '</li>'); return; }
+    endList(); para.push(l); });
+  flushT(); flushQ(); flush(); endList();
+  return out.join('').replace(/\u0000(\d+)\u0000/g, (_m, i) => code[+i]);
+}
+/* one line of a reply (a suggestion's title): [b12] named, **bold** */
+const mdLine = s => md(String(s || '').replace(/\s*\n\s*/g, ' ')).replace(/^<p>|<\/p>$/g, '');
+/* the model a chat runs on: picked for a new chat, then the chat's own
+   (the reader's choice too: the same pp.chatmodel) */
+const modelName = id => (models.find(m => m.id === id) || { label: id }).label;
+function modelPref() { let p = null; try { p = localStorage.getItem('pp.chatmodel'); } catch (e) {}
+  return models.some(m => m.id === p) ? p : modelDefault; }
+function usageFoot(m, u) {   // what a reply cost
+  if (!u || !u.length) return;
+  let f = m.querySelector('.cusage'); if (!f) { f = document.createElement('div'); f.className = 'cusage'; m.appendChild(f); }
+  let tok = 0, cached = 0; u.forEach(x => { tok += x[0] + x[1] + x[2]; cached += x[1]; });
+  f.textContent = u.length + (u.length === 1 ? ' call' : ' calls') + ' \u00b7 ' + Math.round(tok / 1000) + 'k tokens' + (tok ? ' (' + Math.round(100 * cached / tok) + '% cached)' : '');
+}
+function modelShow() { const s = $('#chatmodel');
+  s.innerHTML = models.map(m => '<option value="' + esc(m.id) + '" title="' + esc(m.note || '') + '">' + esc(m.label) + '</option>').join('');
+  s.hidden = models.length < 2;
+  s.value = models.some(m => m.id === chatModel) ? chatModel : modelPref();
+  $('#chatcompact').hidden = $('#chatclear').hidden = !chatId; }
+function chatList(sel) {
+  return api(location.pathname + '/chats.json').then(d => {
+    models = d.models || []; modelDefault = d.default || '';
+    const o = ['<option value="">New chat</option>'];
+    // as the reader lists them: the title, the model when not the default, how long ago
+    (d.chats || []).forEach(c => o.push('<option value="' + c.id + '">' + esc(c.title || 'Chat') +
+      (c.model && c.model !== modelDefault ? ' · ' + esc(modelName(c.model)) : '') + ' · ' + ago(c.updated) + '</option>'));
+    $('#chatsel').innerHTML = o.join(''); $('#chatsel').value = sel || chatId || ''; modelShow(); return d; });
+}
+function chatOpen() {
+  if (chatOpened) return; chatOpened = true;
+  Promise.all([chatList(), blocksLoad()]).then(() => {
+    if (chatBusy || chatId || $('#chatlog .msg')) return;   // a message sent before the list came keeps its conversation
+    const last = $('#chatsel').options[1]; if (last) chatLoad(last.value); else chatEmpty(); });
+}
+function chatEmpty() {
+  chatId = null; chatModel = null; $('#chatsel').value = ''; modelShow();
+  $('#chatlog').innerHTML = '<div class="chatempty"><div class="big">✦</div><b>Ask about this paper</b>' +
+    '<p>The same assistant and chats as in the reader: it sees the paper as it reads and as LaTeX (files, compile log, pages) and suggests edits you accept or reject. It also uses files you attach (📎, or drop them here) and draws figures from your data or a table of the paper.</p>' +
+    '<div class="chips">' + ['Why does it not compile?', 'Summarise the paper', 'Which sentences are hard to follow?', 'Check that every figure is referenced']
+    .map(q => '<button type="button" class="chip" data-ask="' + esc(q) + '">' + esc(q) + '</button>').join('') + '</div></div>';
+}
+function chatLoad(id) {
+  return api(location.pathname + '/chats/' + id + '.json').then(d => {
+    if (d.status !== 200) throw 0;
+    chatId = d.id; chatModel = d.model || null; modelShow(); const log = $('#chatlog'); log.innerHTML = '';
+    d.view.forEach((v, i) => { if (v.role === 'user') { const um = userMsg(v.text, attLabel(v.ctx, v.files), v.snips); um.dataset.i = i; log.appendChild(um); }
+      else if (v.role === 'note') log.appendChild(noteMsg(v.text));
+      else { const m = aiMsg(i); v.parts.forEach((p, j) => addPart(m, p, j)); if (v.stopped) stoppedMark(m); if (v.interrupted || v.running) cutMark(m, v.running); usageFoot(m, v.usage); } });
+    $('#chatsel').value = id; log.scrollTop = log.scrollHeight;
+  }).catch(() => { chatEmpty(); chatList(); });
+}
+function userMsg(text, ctx, shots) { const d = document.createElement('div'); d.className = 'msg me';
+  const pics = (shots || []).filter(h => /^[0-9a-f]{40}$/.test(h)).map(h => '<a href="/docs/' + ID + '/latex_chat/pages/' + h +
+    '.png" target="_blank" rel="noopener"><img alt="A snip sent with this message" src="/docs/' + ID + '/latex_chat/pages/' + h + '.png"></a>').join('');
+  d.innerHTML = (ctx ? '<div class="mctx" title="' + esc(ctx) + '">' + esc(ctx.slice(0, 140)) + '</div>' : '') +
+    (pics ? '<div class="msnips">' + pics + '</div>' : '') + '<div class="bub">' + esc(text).replace(/\n/g, '<br>') + '</div>'; return d; }
+function aiMsg(i) { const d = document.createElement('div'); d.className = 'msg ai'; d.dataset.i = i; $('#chatlog').appendChild(d); return d; }
+function noteMsg(t) { const d = document.createElement('div'); d.className = 'cstep'; d.textContent = t; return d; }
+/* the one assistant (the reader's): its text suggestions come with their LaTeX (c.latex), applied here
+   into the open file like its LaTeX ones; the rest is for the reader */
+function textSug(sg) {
+  const changes = (sg.changes || []).filter(c => c.latex), done = sg.done || {};
+  // its states by the place of each change among those with LaTeX
+  const pick = list => (list || []).filter(k => sg.changes[k] && sg.changes[k].latex).map(k => changes.indexOf(sg.changes[k]));
+  return { summary: sg.summary, changes: changes.map(c => Object.assign({}, c.latex, { read: c.read })),
+    applied: pick(done.applied), rejected: pick(done.rejected), stale: pick(done.stale),
+    keys: changes.map(c => sg.changes.indexOf(c)), rest: (sg.changes || []).length - changes.length };
+}
+function addPart(m, p, j) { let e;
+  if (p.text !== undefined) { e = document.createElement('div'); e.className = 'mdt'; e._src = p.text; e.innerHTML = md(p.text); }
+  else if (p.step) { e = document.createElement('div'); e.className = 'cstep'; e.textContent = p.step; }
+  else if (p.suggest_tex) return edAdd(m, p.suggest_tex, j, 0);
+  else if (p.suggest_fig) return p.suggest_fig.superseded ? null : edAdd(m, Object.assign(p.suggest_fig, { fig: true, changes: [{ fig: true }],
+    applied: p.suggest_fig.applied ? [0] : [], rejected: p.suggest_fig.rejected ? [0] : [] }), j, 0);
+  else if (p.suggest) { const t = textSug(p.suggest); return edAdd(m, t, j, t.rest); }
+  else if (p.applied) e = noteMsg('Changed the paper: ' + (p.applied.summary || '') + ' (version ' + p.applied.doc_version + ')');
+  else if (p.synced) e = noteMsg('Reader updated from the LaTeX' + (p.synced.summary ? ': ' + p.synced.summary : '') +
+    ((p.synced.names || []).length ? ' (' + p.synced.names.join(', ') + ')' : '') + (p.synced.doc_version ? ' · version ' + p.synced.doc_version : ''));
+  else if (p.plan) { e = m.querySelector('.cplan') || document.createElement('div'); e.className = 'cplan'; e.innerHTML = planHtml(p.plan); if (e.parentNode) return e; }
+  else if (p.figure && /^[0-9a-f]{40}$/.test(p.figure)) {   // a figure the assistant's Python drew
+    e = document.createElement('div'); e.className = 'cfig';
+    e.innerHTML = '<img alt="A figure the assistant drew" src="/docs/' + ID + '/latex_chat/pages/' + p.figure + '.png">'; }
+  // a reply's edits stay at its end, after what it says about them
+  const box = m.querySelector(':scope > .cedits');
+  if (e && box && !e.parentNode) m.insertBefore(e, box); else if (e && !e.parentNode) m.appendChild(e);
+  return e; }
+function planHtml(items) { const ck = { pending: '\u25cb', in_progress: '\u25d0', done: '\u2713' }, n = items.filter(x => x.status === 'done').length;
+  return '<div class="ph">Plan · ' + n + '/' + items.length + '</div><ul>' + items.map(x => '<li class="' + x.status + '"><span class="ck">' + ck[x.status] + '</span><span>' + esc(x.text) + '</span></li>').join('') + '</ul>'; }
+/* a change shown two ways, as in the reader: Diff and Before / after as the paper will read
+   (formulas drawn), LaTeX as the source changes; one choice for every card, remembered */
+const VTABS = '<div class="vtabs"><button type="button" data-v="diff">Diff</button><button type="button" data-v="ba">Before / after</button>' +
+  '<button type="button" data-v="tex">LaTeX</button></div>';
+function dvSet(v) { document.body.classList.toggle('dv-ba', v === 'ba'); document.body.classList.toggle('dv-tex', v === 'tex');
+  try { localStorage.setItem('pp.dview', v); } catch (e) {} }
+try { dvSet(localStorage.getItem('pp.dview') || 'diff'); } catch (e) {}
+document.addEventListener('click', e => { const b = e.target.closest('.vtabs button'); if (b) { e.preventDefault(); dvSet(b.dataset.v); } });
+function unhexTex(h) { const b = new Uint8Array(h.length / 2); for (let i = 0; i < b.length; i++) b[i] = parseInt(h.substr(i * 2, 2), 16); return new TextDecoder().decode(b); }
+function texify(root) { if (!window.katex) return;
+  root.querySelectorAll('span.m[data-tex]').forEach(e => { if (e.querySelector('.katex')) return; const keep = e.innerHTML;
+    try { katex.render(unhexTex(e.getAttribute('data-tex') || ''), e, { throwOnError: true }); } catch (x) { e.innerHTML = keep; } }); }
+addEventListener('load', () => texify(document.body));      // cards drawn before KaTeX loaded
+function readView(r) {
+  return '<div class="vdiff diff rd">' + r.diff + '</div><div class="vba"><div class="vcol"><div class="vlab">Original</div><div class="vold">' +
+    (r.old || '<i>(none)</i>') + '</div></div><div class="vcol"><div class="vlab">Proposed</div><div class="vnew">' + (r.new || '<i>(removed)</i>') + '</div></div></div>';
+}
+function readingHtml(r) {
+  if (r === null) return '<div class="vnone">How the paper reads after this could not be worked out: see the LaTeX.</div>';
+  if (!r.length) return '<div class="vnone">The paper reads the same after this; only its layout or LaTeX changes.</div>';
+  const what = { changed: 'changes', added: 'new', removed: 'removed', moved: 'moves' };
+  return '<div class="rhead">In the paper</div>' + r.map(e => '<div class="card rcard"><div class="top"><span>' + esc(e.name) + '</span><span>' +
+    (what[e.type] || e.type) + (e.note ? ' · ' + esc(e.note) : '') + '</span></div>' +
+    (e.type === 'moved' ? '<div class="rmove">Moves to after ' + esc(e.after) + '<span> (it stood after ' + esc(e.was_after) + ')</span></div>' :
+     e.type === 'added' ? '<div class="rmove">After ' + esc(e.after) + '</div>' : '') + readView(e) + '</div>').join('');
+}
+/* a reply's suggested edits, in one box at its end as in the reader: the header counts those still to
+   apply, with Apply all; each edit has its own Apply and Reject. Apply puts it in its file at once and
+   saves it (the reader follows); an applied one keeps its place, its Apply greyed out, with Undo;
+   Reject sets it aside (Undo takes that back); one whose text is no longer in its file is out of
+   date. Each keeps its state in the saved chat, so the reader and this editor show the same */
+function edBox(m) {
+  let box = m.querySelector(':scope > .cedits'); if (box) return box;
+  box = document.createElement('div'); box.className = 'csug cedits'; box._g = []; box._rest = 0; box._busy = false;
+  box.addEventListener('click', e => edClick(box, e)); m.appendChild(box); return box;
+}
+function edAdd(m, sg, pj, rest) {
+  const box = edBox(m);
+  box._g.push({ sg, pj, errs: {}, has: { applied: new Set(sg.applied || []), rejected: new Set(sg.rejected || []),
+    stale: new Set(sg.stale || []) } });
+  box._rest += rest || 0; edDraw(box); return box;
+}
+const edSt = (g, k) => g.has.applied.has(k) ? 'applied' : g.has.rejected.has(k) ? 'rejected' : g.has.stale.has(k) ? 'stale' : 'open';
+function edItem(gi, g, k, n) {
+  const c = g.sg.changes[k], s = edSt(g, k), fold = s === 'rejected' || s === 'stale';
+  if (g.sg.fig) {            // a redrawn figure: the one the paper has beside the new one
+    const pic = (h, lab) => '<figure><figcaption>' + lab + '</figcaption>' + (h && /^[0-9a-f]{40}$/.test(h) ? '<a href="/docs/' + ID +
+      '/latex_chat/pages/' + h + '.png" target="_blank" rel="noopener"><img alt="' + lab + '" src="/docs/' + ID + '/latex_chat/pages/' + h +
+      '.png"></a>' : '<div class="ednone">(no picture)</div>') + '</figure>';
+    const py = ((g.sg.files || []).find(f => /\.py$/.test(f.path)) || {}).path;
+    const acts = s === 'applied' ? '<span class="sp"></span><button type="button" class="ghost sm" data-ed="undo">↶ Undo</button>' +
+        '<button type="button" class="edgo done" disabled>✓ Applied</button>' :
+      s === 'rejected' ? '<span class="sgst">Rejected</span><span class="sp"></span><button type="button" class="ghost sm" data-ed="unrej">Undo</button>' :
+      '<span class="sp"></span><button type="button" class="ghost sm" data-ed="rej">Reject</button><button type="button" class="edgo" data-ed="apply">Apply</button>';
+    return '<div class="card st-' + s + (fold ? ' folded' : '') + '" data-g="' + gi + '" data-k="0"><div class="top"><span class="edno">' + n +
+      '</span><span class="where">Figure · ' + esc(g.sg.path || '') + '</span>' + (py ? '<a href="#" class="fref" data-f="' + esc(py) +
+      '" data-l="1">Its script →</a>' : '') + '</div>' + (fold ? '' : '<div class="edfig">' + pic(g.sg.old, 'Now') + pic(g.sg.new, 'Suggested') +
+      '</div>') + (g.errs[0] ? '<div class="sgerr">' + esc(g.errs[0]) + '</div>' : '') + '<div class="acts">' + acts + '</div></div>';
+  }
+  const acts = s === 'applied' ? '<span class="sp"></span><button type="button" class="ghost sm" data-ed="undo" title="Take this ' +
+      'edit out of the LaTeX again">↶ Undo</button><button type="button" class="edgo done" disabled>✓ Applied</button>' :
+    s === 'rejected' ? '<span class="sgst">Rejected</span><span class="sp"></span><button type="button" class="ghost sm" data-ed="unrej">Undo</button>' :
+    s === 'stale' ? '<span class="sgst" title="Its text is no longer in the file (it changed since): ask again">Out of date</span>' :
+    '<span class="sp"></span><button type="button" class="ghost sm" data-ed="rej">Reject</button><button type="button" class="edgo" data-ed="apply">Apply</button>';
+  return '<div class="card st-' + s + (fold ? ' folded' : '') + '" data-g="' + gi + '" data-k="' + k + '"><div class="top">' +
+    '<span class="edno">' + n + '</span><span class="where">' + esc(c.path) + (c.new ? ' · new file' : ':' + c.line) + '</span>' +
+    '<a href="#" class="fref" data-f="' + esc(c.path) + '" data-l="' + c.line + '">Show in editor →</a></div>' +
+    (fold ? '' : (c.read ? VTABS + readView(c.read) + '<div class="vtex"><div class="diff">' + c.diff + '</div></div>' :
+      '<div class="diff lx">' + c.diff + '</div>') + '<div class="why">' + esc(c.why) + '</div>') +
+    (g.errs[k] ? '<div class="sgerr">' + esc(g.errs[k]) + '</div>' : '') + '<div class="acts">' + acts + '</div></div>';
+}
+function edDraw(box) {
+  let tot = 0, open = 0, app = 0, rej = 0, n = 0; const rows = [], many = box._g.filter(g => g.sg.changes.length).length > 1;
+  box._g.forEach((g, gi) => { if (!g.sg.changes.length) return;
+    if (many) rows.push('<div class="edsub">' + mdLine(g.sg.summary || 'Edits') + '</div>');
+    if (g.sg.reading !== undefined && g.sg.reading !== null && g.sg.reading.length)
+      rows.push('<details class="edread"><summary>How the paper will read</summary>' + readingHtml(g.sg.reading) + '</details>');
+    g.sg.changes.forEach((c, k) => { const s = edSt(g, k); tot++; if (s === 'open') open++; else if (s === 'applied') app++; else rej++;
+      rows.push(edItem(gi, g, k, ++n)); }); });
+  const rest = box._rest ? '<div class="edrest">' + box._rest + ' edit' + (box._rest === 1 ? '' : 's') + ' to the text: apply in the reader</div>' : '';
+  box.hidden = !tot && !rest; if (box.hidden) return;
+  box.className = 'csug cedits' + (open ? '' : ' resolved');
+  const one = !many && box._g.find(g => g.sg.changes.length);
+  box.innerHTML = (tot ? '<div class="edh"><span class="edt">Suggested edits</span><span class="edc" title="Edits still to apply">' + open +
+    '</span><span class="edst">' + [app ? app + ' applied' : '', rej ? rej + ' set aside' : ''].filter(Boolean).join(' · ') + '</span>' +
+    (open ? '<button type="button" class="edall" data-ed="all"' + (box._busy ? ' disabled' : '') + '>' +
+      (box._busy ? '<span class="cspin"></span> Applying…' : 'Apply all (' + open + ')') + '</button>' :
+      app ? '<span class="eddone">✓ All applied</span>' : '') + '</div>' +
+    (one ? '<div class="edsum">' + mdLine(one.sg.summary || '') + '</div>' : '') : '') + rows.join('') + rest;
+  texify(box);
+}
+const edMark = (box, g, op, keys, on) => api('chat/ops', { op, chat_id: chatId, msg: +box.closest('.msg').dataset.i, part: +g.pj, on,
+  keys: g.sg.keys ? keys.map(k => g.sg.keys[k]) : keys }).catch(() => {});
+// each edit found in its file as it is now, then put in from the last one back, so one never meets
+// another's new text (a move: a copy put in here, the original taken out there); one save for all
+// a redrawn figure: put in (or taken back) by the server, the files reloaded here
+async function edFig(box, g, what) {
+  const r = await api('chat/ops', { op: 'figure', do: what, chat_id: chatId, msg: +box.closest('.msg').dataset.i, part: +g.pj })
+    .catch(() => ({ error: 'The app could not be reached' }));
+  if (r.error) { g.errs[0] = r.error; edDraw(box); toast(r.error); return false; }
+  g.has.applied[r.applied ? 'add' : 'delete'](0); g.has.rejected[r.rejected ? 'add' : 'delete'](0); delete g.errs[0];
+  if (what === 'apply' || what === 'undo') { await reloadProject().catch(() => {}); if (S.cur) await openFile(S.cur); nudgeReader();
+    if ($('#auto').checked) compile(); }
+  edDraw(box); return true;
+}
+async function edApply(box, items) {
+  const figs = items.filter(([g]) => g.sg.fig); items = items.filter(([g]) => !g.sg.fig);
+  for (const [g] of figs) if (await edFig(box, g, 'apply')) toast('Figure applied — the reader follows');
+  if (!items.length) { edDraw(box); return; }
+  const at = {}, ok = [], made = [], tried = new Set();
+  // a new file first (made with its text, as New file makes one), so the edits that use it compile
+  for (const [g, k] of items) { const c = g.sg.changes[k];
+    if (!c.new || (S.proj.files || []).some(x => x.path === c.path)) continue;
+    delete g.errs[k]; tried.add(c);
+    const d = await api('new', { path: c.path, text: c.replace, base: S.version, note: 'Assistant: new file ' + c.path });
+    if (d.status !== 200) { g.errs[k] = d.error || 'Could not make it'; continue; }
+    S.version = d.version; g.has.applied.add(k); edMark(box, g, 'applied', [k], true); made.push([g, k]);
+  }
+  if (made.length) await reloadProject().catch(() => {});
+  for (const [g, k] of items) { const c = g.sg.changes[k]; if (tried.has(c)) continue;
+    delete g.errs[k];
+    const i = await findChange(c);
+    if (i < 0) g.has.stale.add(k); else (at[c.path] = at[c.path] || []).push({ g, k, c, i }); }
+  for (const p in at) at[p].sort((x, y) => y.i - x.i).forEach(({ g, k, c, i }) => { putChange(c, i); ok.push([g, k]); });
+  const saved = ok.length && await saveNow();
+  if (saved) {
+    const by = new Map(); ok.forEach(([g, k]) => { g.has.applied.add(k); by.set(g, (by.get(g) || []).concat([k])); });
+    by.forEach((keys, g) => edMark(box, g, 'applied', keys, true));
+  }
+  if ((saved || made.length) && $('#auto').checked) compile();
+  ok.push(...made);
+  edDraw(box);
+  const miss = items.length - ok.length;
+  toast(ok.length ? 'Applied ' + ok.length + ' edit' + (ok.length === 1 ? '' : 's') +
+    (S.proj.draft && !S.proj.synced ? '' : ' — the reader follows') + (miss ? ' · ' + miss + ' out of date' : '') :
+    'Out of date: its text is no longer in the file');
+}
+// Undo: the edit's new text put back as it was, when it is still in the file just once
+async function edUndo(box, g, k) {
+  const c = g.sg.changes[k]; delete g.errs[k];
+  await openFile(c.path);
+  const f = S.files[c.path], text = f && f.doc ? f.doc.getValue() : '', i = c.replace ? text.indexOf(c.replace) : -1;
+  if (i < 0 || text.indexOf(c.replace, i + 1) >= 0) {
+    g.errs[k] = 'This passage changed after it was applied: undo it in the editor (Ctrl/⌘+Z), or ask again.'; edDraw(box); return; }
+  putChange({ path: c.path, find: c.replace, replace: c.find }, i);
+  if (await saveNow()) { g.has.applied.delete(k); edMark(box, g, 'applied', [k], false); if ($('#auto').checked) compile(); }
+  edDraw(box); toast('Edit taken back');
+}
+async function edClick(box, e) {
+  const b = e.target.closest('[data-ed]'); if (!b || b.disabled || box._busy) return;
+  const it = b.closest('[data-k]'), g = it ? box._g[+it.dataset.g] : null, k = it ? +it.dataset.k : null, what = b.dataset.ed;
+  if (what === 'apply') { b.disabled = true; b.innerHTML = '<span class="cspin"></span> Applying'; await edApply(box, [[g, k]]); }
+  else if (g && g.sg.fig && what !== 'all') { b.disabled = true;
+    if (await edFig(box, g, { undo: 'undo', rej: 'reject', unrej: 'unreject' }[what]) && what === 'undo') toast('Figure taken back'); }
+  else if (what === 'all') { box._busy = true; edDraw(box); const items = [];
+    box._g.forEach(x => x.sg.changes.forEach((c, j) => { if (edSt(x, j) === 'open') items.push([x, j]); }));
+    try { await edApply(box, items); } finally { box._busy = false; edDraw(box); } }
+  else if (what === 'undo') { b.disabled = true; await edUndo(box, g, k); }
+  else if (what === 'rej') { g.has.rejected.add(k); edDraw(box); edMark(box, g, 'rejected', [k], true); }
+  else if (what === 'unrej') { g.has.rejected.delete(k); edDraw(box); edMark(box, g, 'rejected', [k], false); }
+}
+// the suggested edits on their own: a tab on the drawer's edge opens them beside the chat when hovered
+// (tools/edits_panel.js); its buttons act on the chat's boxes
+if (window.ppDrawerResize) window.ppDrawerResize($('#ai'), 'pp.aiw.tex');   // its width, dragged
+if (window.ppEditsPanel) window.ppEditsPanel({ drawer: $('#ai'), log: $('#chatlog'), slot: $('#chatnew'), click: edClick,
+  link: e => { const f = e.target.closest('.fref'); if (!f) return false; e.preventDefault(); const p = knownFile(f.dataset.f);
+    if (p) { if (window.matchMedia('(max-width:900px)').matches) showPane('ed'); openFile(p.path, +f.dataset.l); } return true; } });
+// a change lands in the open document (unsaved typing kept), found by its exact text: where (-1: not once)
+async function findChange(c) {
+  await openFile(c.path);
+  const f = S.files[c.path]; if (!f || !f.doc) return -1;
+  const text = f.doc.getValue(), i = text.indexOf(c.find);
+  if (!c.find) return text ? -1 : 0;          // a file that was still empty: its whole text
+  return i < 0 || text.indexOf(c.find, i + 1) >= 0 ? -1 : i;
+}
+function putChange(c, i) {
+  const doc = S.files[c.path].doc, from = doc.posFromIndex(i), to = doc.posFromIndex(i + c.find.length);
+  doc.replaceRange(c.replace, from, to, '+assistant');
+  if (S.cur === c.path) { cm.setSelection(from, doc.posFromIndex(i + c.replace.length)); cm.scrollIntoView(from, 80); }
+}
+function chatWith(ctx) {            // a selection (code or PDF text) becomes the next message's context
+  chatCtx = ctx; drawCtx(); openDrawerAI('chat');
+}
+function drawCtx() {
+  const c = $('#chatctx'); ctxClrShow(); if (!chatCtx) { c.hidden = true; c.innerHTML = ''; return; }
+  const where = chatCtx.file ? chatCtx.file + (chatCtx.from ? ':' + chatCtx.from + (chatCtx.to && chatCtx.to !== chatCtx.from ? '–' + chatCtx.to : '') : '') : '';
+  const what = chatCtx.pdf ? 'PDF: “' + chatCtx.pdf.slice(0, 120) + '”' : chatCtx.text ? 'Code: “' + chatCtx.text.replace(/\s+/g, ' ').slice(0, 120) + '”' : chatCtx.problem ? 'Problem: ' + chatCtx.problem.slice(0, 120) : where;
+  c.hidden = false; c.innerHTML = '<span title="' + esc(where) + '">' + esc(what) + (where && !chatCtx.problem ? ' <small>(' + esc(where) + ')</small>' : '') + '</span><button type="button" class="x" aria-label="clear">✕</button>';
+}
+$('#chatctx').addEventListener('click', e => { if (e.target.closest('button')) { chatCtx = null; drawCtx(); } });
+/* passages of the paper in the chat (@ Add context, or @ typed), as the reader's: a section with its
+   text, a figure or a table; they go with each question until removed (this tab, this document) */
+let refs = [], PICK = [], pickAt = null, pickI = 0, pickItems = [];
+const refKey = 'pp.refs.' + ID;
+try { refs = JSON.parse(sessionStorage.getItem(refKey) || '[]') || []; } catch (e) { refs = []; }
+function refsSave() { try { sessionStorage.setItem(refKey, JSON.stringify(refs)); } catch (e) {} }
+function refsShow() {
+  $('#chatrefs').innerHTML = refs.map((r, i) => '<span class="cref" title="' + esc(r.text.slice(0, 600)) + '"><span>' +
+    esc(r.label || '¶ ' + r.text.slice(0, 42)) + '</span><button type="button" class="x" data-rm="' + i + '" aria-label="remove">✕</button></span>').join('');
+  ctxClrShow();
+}
+/* Clear context: the passages and the selection go at once (files and snips stay); shown while there is any */
+function ctxClrShow() { $('#chatctxclr').hidden = !(refs.length || chatCtx); }
+$('#chatctxclr').onclick = () => { refs = []; refsSave(); refsShow(); chatCtx = null; drawCtx(); toast('Context cleared'); $('#chatq').focus(); };
+function pickDraw(q) {
+  const box = $('#chatpick'); q = (q || '').toLowerCase();
+  pickItems = PICK.filter(x => !q || (x.name + ' ' + x.sub).toLowerCase().includes(q)).slice(0, 40);
+  pickI = Math.min(pickI, Math.max(0, pickItems.length - 1));
+  box.innerHTML = pickItems.length ? pickItems.map((x, i) => '<button type="button" role="option" data-pi="' + i + '"' + (i === pickI ? ' class="on"' : '') +
+    '><span class="pk">' + (x.kind === 'section' ? '§' : x.kind === 'table' ? '▦' : '▣') + '</span><span class="pn">' + esc(x.name.replace(/^§ /, '')) +
+    '</span><span class="ps">' + esc(x.sub) + '</span></button>').join('') :
+    '<div class="pnone">' + (PICK.length ? 'Nothing by that name' : 'The paper\'s sections, figures and tables are loading…') + '</div>';
+  box.hidden = false; const on = box.querySelector('.on'); if (on) on.scrollIntoView({ block: 'nearest' });
+}
+function pickClose() { $('#chatpick').hidden = true; pickAt = null; }
+function pickTake(i) {
+  const x = pickItems[i]; if (!x) return;
+  if (pickAt !== null) { const t = $('#chatq'), v = t.value, c = t.selectionStart;   // the @word typed goes
+    t.value = v.slice(0, pickAt) + v.slice(c); t.selectionStart = t.selectionEnd = pickAt; }
+  refs = refs.filter(r => r.id !== x.id); refs.push({ id: x.id, text: x.text, label: x.name });
+  if (refs.length > 6) refs.shift();
+  refsSave(); refsShow(); pickClose(); $('#chatq').focus();
+  toast(refs.length > 1 ? refs.length + ' items in the chat' : 'Added to the chat');
+}
+$('#chatat').onclick = () => { if (!$('#chatpick').hidden) { pickClose(); return; } pickAt = null; pickI = 0; pickDraw(''); $('#chatq').focus(); };
+$('#chatpick').addEventListener('mousedown', e => e.preventDefault());        // the message box keeps the focus
+$('#chatpick').addEventListener('click', e => { const b = e.target.closest('[data-pi]'); if (b) pickTake(+b.dataset.pi); });
+$('#chatrefs').addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (b) { refs.splice(+b.dataset.rm, 1); refsSave(); refsShow(); } });
+$('#chatq').addEventListener('input', function () { const m = this.value.slice(0, this.selectionStart).match(/(^|\s)@([^\s@]{0,40})$/);
+  if (m) { pickAt = this.selectionStart - m[2].length - 1; pickDraw(m[2]); } else if (pickAt !== null) pickClose(); });
+$('#chatq').addEventListener('keydown', function (e) {    // before the send key: the list takes them while open
+  if ($('#chatpick').hidden) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); e.stopImmediatePropagation();
+    pickI = (pickI + (e.key === 'ArrowDown' ? 1 : pickItems.length - 1)) % Math.max(1, pickItems.length);
+    pickDraw(pickAt === null ? '' : this.value.slice(pickAt + 1, this.selectionStart)); }
+  else if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); e.stopImmediatePropagation(); if (pickItems.length) pickTake(pickI); else pickClose(); }
+  else if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); pickClose(); } });
+refsShow();
+/* files attached to the next message (the clip, dropped on the editor or pasted in the chat): each goes
+   into the project's assets/ at once, and the message names them to the assistant */
+let atts = [], dragN = 0;
+function attShow() {
+  const box = $('#chatfiles'); box.hidden = !atts.length;
+  box.innerHTML = atts.map((a, i) => '<span class="catt" title="' + esc(a.path || 'uploading…') + '">' +
+    (a.path ? '📎' : '<span class="cspin"></span>') + '<span>' + esc(a.name) + '</span><button type="button" class="x" data-unatt="' + i +
+    '" aria-label="remove" title="Leave it out of the message (it stays in the project)">✕</button></span>').join('');
+}
+/* the note a saved message went with (here or in the reader), as the short label the composer
+   showed ("PDF: “…”"), not the instructions the assistant was given */
+function ctxLabel(s){s=String(s||'');if(!/^The author/.test(s))return s;
+var out=[],m;function cut(x,n){x=x.replace(/\s+/g,' ').trim();return x.length>n?x.slice(0,n)+'…':x}
+if((m=s.match(/in the compiled PDF: “([^”]*)”(?: — it comes from (.*?))?\. A change/)))
+out.push('PDF: “'+cut(m[1],100)+'”'+(m[2]?' ('+m[2]+')':''));
+else if((m=s.match(/selected this text in [^:]*: “([^”]*)”/)))out.push('Selected: “'+cut(m[1],100)+'”');
+else if((m=s.match(/selected this in the editor(?: \(([^)]*)\))?:\n([\s\S]*?)\nA change/)))
+out.push('Code: “'+cut(m[2],100)+'”'+(m[1]?' ('+m[1]+')':''));
+else if((m=s.match(/points at this compile problem: ([\s\S]*)/)))out.push('Problem: '+cut(m[1],100));
+else if((m=s.match(/cursor is at (.*)/)))out.push('At '+m[1]);
+else if((m=s.match(/has blocks? ([^:]*?) open(?:: “([^”]*)”)?/)))
+out.push(m[2]?'About: “'+cut(m[2],90)+'”':'About '+m[1].split(',').length+' blocks');
+if((m=s.match(/added (this passage|these passages) from the paper/))){
+var n=m[1]==='this passage'?1:(s.match(/\(\d+\) block /g)||[]).length;
+out.push(n+' passage'+(n>1?'s':'')+' in context')}
+return out.join(' · ')}
+function attLabel(ctx, paths) {
+  const f = (paths || []).map(p => p.split('/').pop()).join(', '); ctx = ctxLabel(ctx);
+  return (ctx || '') + (ctx && f ? ' · ' : '') + (f ? '📎 ' + f : '');
+}
+function attach(list) {
+  Array.from(list || []).forEach(file => {
+    if (file.size > 15 * 1024 * 1024) { toast(file.name + ' is larger than 15 MB'); return; }
+    if (atts.length >= 10) { toast('At most 10 files go with one message'); return; }
+    const a = { name: file.name }; atts.push(a); attShow();
+    const drop = msg => { const i = atts.indexOf(a); if (i >= 0) atts.splice(i, 1); attShow(); toast(msg); };
+    const rd = new FileReader();
+    rd.onerror = () => drop(file.name + ' could not be read');
+    rd.onload = async () => {
+      try {
+        const d = await api('upload', { path: file.name, chat: true, data: String(rd.result).split(',')[1] || '' });
+        if (d.error) { drop(file.name + ': ' + d.error); return; }
+        a.path = d.path; attShow(); reloadProject().catch(() => {});
+      } catch (e) { drop(file.name + ' could not be uploaded'); }
+    };
+    rd.readAsDataURL(file);
+  });
+}
+$('#chatfiles').addEventListener('click', e => { const b = e.target.closest('[data-unatt]'); if (b) { atts.splice(+b.dataset.unatt, 1); attShow(); } });
+$('#chatfile').onclick = () => $('#chatfin').click();
+$('#chatfin').onchange = e => { attach(e.target.files); e.target.value = ''; };
+$('#chatq').addEventListener('paste', e => {
+  const f = e.clipboardData && e.clipboardData.files;
+  // a picture pasted (a screenshot): marked up first, as a snip
+  if (f && f.length === 1 && /^image\/(png|jpeg|gif|webp)$/.test(f[0].type) && window.ppSnip) { e.preventDefault(); snipEdit({ image: f[0], scale: 'auto' }); return; }
+  if (f && f.length) { e.preventDefault(); attach(f); }
+});
+const dragFiles = e => e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+document.addEventListener('dragenter', e => { if (!dragFiles(e)) return; dragN++; document.body.classList.add('dropping'); });
+document.addEventListener('dragleave', e => { if (!dragFiles(e)) return; if (--dragN <= 0) { dragN = 0; document.body.classList.remove('dropping'); } });
+document.addEventListener('dragover', e => { if (dragFiles(e)) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; } });
+document.addEventListener('drop', e => {
+  if (!dragFiles(e)) return; e.preventDefault(); dragN = 0; document.body.classList.remove('dropping');
+  if (!$('#ai').classList.contains('open') || aiTab !== 'chat') openDrawerAI('chat');
+  attach(e.dataTransfer.files);
+});
+/* snips: part of the PDF taken as a picture and marked up (tools/snip.js) for the next message, with the
+   lines of the LaTeX it comes from (SyncTeX); the pages drawn again sharper for it */
+let snaps = [];
+const snapLabel = n => 'Snip' + (n.notes.length ? ' · ' + n.notes.length + ' pin' + (n.notes.length > 1 ? 's' : '') : '') +
+  (n.src ? ' · ' + n.src.file.split('/').pop() + ' ' + n.src.from + (n.src.to !== n.src.from ? '–' + n.src.to : '') : '');
+function snapShow() {
+  const box = $('#chatsnips'); box.hidden = !snaps.length;
+  box.innerHTML = snaps.map((n, i) => '<span class="cref csnip" title="' + esc(snapLabel(n)) + ': click the picture to change the marks">' +
+    '<button type="button" class="snipthumb" data-resnip="' + i + '" aria-label="change the marks"><img alt="" src="' + n.url + '"></button>' +
+    '<span>' + esc(snapLabel(n)) + '</span><button type="button" class="x" data-unsnip="' + i +
+    '" aria-label="remove" title="Leave it out of the message">✕</button></span>').join('');
+}
+$('#chatsnips').addEventListener('click', e => {
+  let b = e.target.closest('[data-unsnip]');
+  if (b) { const n = snaps.splice(+b.dataset.unsnip, 1)[0]; if (n) URL.revokeObjectURL(n.url); snapShow(); return; }
+  b = e.target.closest('[data-resnip]'); const n = b && snaps[+b.dataset.resnip];
+  if (n) snipEdit({ image: n.base, scale: n.scale, state: n.state, src: n.src }, n);
+});
+const b64 = blob => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).replace(/^data:[^,]*,/, '')); r.onerror = no; r.readAsDataURL(blob); });
+// the editor; was: the snip changed again (it keeps its place)
+function snipEdit(o, was) {
+  ppSnip.edit({ image: o.image, scale: o.scale, state: o.state, waiting: 'Taking the snip…',
+    actions: [{ id: 'assets', label: 'Save to Assets', title: 'Put the marked-up picture in the project’s assets folder (for a figure)' },
+      { id: 'attach', label: was ? 'Update the snip' : 'Attach to chat', primary: true, title: 'Goes with your next message (Ctrl+Enter)' }],
+    onAction: async (id, r) => {
+      const data = await b64(r.blob);
+      if (id === 'assets') {
+        const d = await api('upload', { path: 'snip.png', chat: true, data });
+        if (d.error) throw new Error(d.error);
+        toast('Saved as ' + d.path); reloadProject().catch(() => {}); return;
+      }
+      const res = await fetch('/api/docs/' + ID + '/chat/snip', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data }) });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok || !d.hash) throw new Error(d.error || 'The snip could not be kept');
+      const n = { hash: d.hash, url: URL.createObjectURL(r.blob), base: r.base, scale: r.scale, state: r.state, notes: r.notes, src: o.src || null };
+      const i = snaps.indexOf(was);
+      if (i >= 0) { URL.revokeObjectURL(was.url); snaps[i] = n; }
+      else { if (snaps.length >= 4) { toast('At most 4 snips go with one message'); return; } snaps.push(n); }
+      snapShow();
+      if (!$('#ai').classList.contains('open') || aiTab !== 'chat') openDrawerAI('chat');
+      setTimeout(() => $('#chatq').focus(), 60);
+    } });
+}
+// the pages under the part, drawn again at twice the size, then cut
+async function snipPdf(r) {
+  const pages = [...pagesEl.querySelectorAll('.page')].filter(p => { const b = p.getBoundingClientRect();
+    return b.bottom > r.y && b.top < r.y + r.h && b.right > r.x && b.left < r.x + r.w; });
+  if (!pages.length || !S.pdf) throw new Error('There is no page there');
+  const K = Math.max(2, window.devicePixelRatio || 1);
+  const items = await Promise.all(pages.map(async p => {
+    const page = await S.pdf.getPage(+p.dataset.n), vp = page.getViewport({ scale: p._scale * K });
+    const c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+    await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+    return [p, c];
+  }));
+  return ppSnip.grab(r, items, '#fff').image;
+}
+// the LaTeX lines the part comes from: SyncTeX at its corners
+async function snipSrc(r) {
+  const at = async (x, y) => {
+    const p = [...pagesEl.querySelectorAll('.page')].find(p => { const b = p.getBoundingClientRect(); return x >= b.left && x <= b.right && y >= b.top && y <= b.bottom; });
+    if (!p) return null; const b = p.getBoundingClientRect(), sc = p._scale;
+    const d = await api(location.pathname + '/synctex?page=' + p.dataset.n + '&x=' + ((x - b.left) / sc).toFixed(1) + '&y=' + ((y - b.top) / sc).toFixed(1)).catch(() => ({}));
+    return d.source || null;
+  };
+  const [a, z] = await Promise.all([at(r.x + 6, r.y + 6), at(r.x + r.w - 6, r.y + r.h - 6)]);
+  const f = a || z; if (!f) return null;
+  const ls = [a, z].filter(x => x && x.file === f.file).map(x => x.line);
+  return { file: f.file, from: Math.min(...ls), to: Math.max(...ls) };
+}
+async function snipStart() {
+  if (!window.ppSnip || document.querySelector('.snippick,.snipx')) return;
+  if (!S.pdf || !pagesEl.querySelector('.page')) { toast('Compile first: a snip is taken from the PDF'); return; }
+  if (window.matchMedia('(max-width:900px)').matches) showPane('pdf');
+  document.body.classList.add('snipping');
+  const r = await ppSnip.pick({ within: pagesEl, hint: 'Drag over the part of the PDF to snip' });
+  document.body.classList.remove('snipping');
+  if (!r) return;
+  const src = await snipSrc(r).catch(() => null);
+  snipEdit({ image: snipPdf(r), scale: Math.max(2, window.devicePixelRatio || 1), src });
+}
+$('#chatsnip').onclick = snipStart;
+addEventListener('keydown', e => { if (e.altKey && !e.ctrlKey && !e.metaKey && e.code === 'KeyS') { e.preventDefault(); e.stopPropagation(); snipStart(); } }, true);
+function send(q) {
+  q = (q || $('#chatq').value).trim(); if (!q || chatBusy) return;
+  if (atts.some(a => !a.path)) { toast('Wait for the files to upload'); return; }
+  chatBusy = true;
+  const log = $('#chatlog'), em = log.querySelector('.chatempty'); if (em) em.remove();
+  let ctx = chatCtx, cq = $('#chatctx').hidden ? '' : $('#chatctx').textContent.replace(/✕$/, '');
+  if (refs.length) { ctx = Object.assign({}, ctx || {}, { refs: refs.map(r => ({ id: r.id, text: r.text })) });
+    cq = (cq ? cq + ' · ' : '') + refs.length + ' passage' + (refs.length > 1 ? 's' : '') + ' in context'; }
+  if (atts.length) { ctx = Object.assign({}, ctx || {}, { files: atts.map(a => a.path) }); cq = attLabel(cq, ctx.files); atts = []; attShow(); }
+  const shots = snaps.map(n => n.hash);
+  if (snaps.length) { ctx = Object.assign({}, ctx || {}, { snips: snaps.map(n => ({ hash: n.hash, notes: n.notes.map(x => x.note), src: n.src })) });
+    snaps.forEach(n => URL.revokeObjectURL(n.url)); snaps = []; snapShow(); }
+  const um = userMsg(q, cq, shots); log.appendChild(um); $('#chatq').value = ''; $('#chatq').style.height = ''; chatCtx = null; drawCtx();
+  const m = aiMsg(log.querySelectorAll('.msg').length), dots = document.createElement('div');
+  dots.className = 'typing'; dots.innerHTML = '<span></span><span></span><span></span>'; m.appendChild(dots);
+  m.classList.add('writing');   // its suggested edits wait for what it says about them (shown when it ends)
+  log.scrollTop = log.scrollHeight; sendBtn(true); stopAsked = false;
+  let cur = null, partN = 0, stick = true;
+  log.onscroll = () => { stick = log.scrollHeight - log.scrollTop - log.clientHeight < 60; };
+  const down = () => { if (stick) log.scrollTop = log.scrollHeight; };
+  const finish = () => { chatBusy = false; sendBtn(false); dots.remove(); m.classList.remove('writing'); chatList(); };
+  const status = t => { dots.innerHTML = '<span></span><span></span><span></span>' + (t ? '<em>' + esc(t) + '</em>' : ''); };
+  fetch(API + 'chat', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: q, chat_id: chatId, ctx, model: $('#chatmodel').value || undefined }) }).then(r => {
+    if (!r.ok || !r.body) return r.json().then(d => { m.innerHTML = '<div class="cerr">' + esc(d.error || 'The assistant could not answer.') + '</div>'; finish(); });
+    const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '', ended = false;
+    const pump = () => rd.read().then(x => {
+      if (x.done) { if (!ended) cutMark(m); finish(); return; }
+      buf += dec.decode(x.value, { stream: true }); const ls = buf.split('\n'); buf = ls.pop();
+      ls.forEach(l => { if (!l.trim()) return; let ev; try { ev = JSON.parse(l); } catch (e) { return; }
+        if (ev.type === 'chat') { chatId = ev.id; chatModel = $('#chatmodel').value || chatModel; modelShow(); if (stopAsked) stopReply(); return; }
+        if (ev.type === 'done') { ended = true; return; }
+        if (ev.type === 'stopped') { cur = null; stoppedMark(m); partN++; return; }
+        if (ev.type === 'status') { status(ev.text); down(); return; }
+        if (ev.type === 'text') { if (!cur) { cur = addPart(m, { text: '' }, partN++); m.appendChild(dots); } status(''); cur._src += ev.text; cur.innerHTML = md(cur._src); }
+        else if (ev.type === 'plan') { cur = null; const had = m.querySelector('.cplan'); addPart(m, { plan: ev.items }, had ? partN : partN++); m.appendChild(dots); }
+        else if (ev.type === 'step') { cur = null; addPart(m, { step: ev.text }, partN++); m.appendChild(dots); }
+        else if (ev.type === 'figure') { cur = null; addPart(m, { figure: ev.hash }, partN++); m.appendChild(dots); reloadProject().catch(() => {}); }
+        else if (ev.type === 'usage') { usageFoot(m, [[ev.tokens - ev.cached, ev.cached, 0, ev.out]].concat(new Array(Math.max(0, ev.turns - 1)).fill([0, 0, 0, 0]))); }
+        else if (ev.type === 'suggest') { cur = null; addPart(m, { suggest: { summary: ev.summary, changes: ev.changes } }, partN++); m.appendChild(dots); }
+        else if (ev.type === 'suggest_tex') { cur = null; addPart(m, { suggest_tex: { summary: ev.summary, changes: ev.changes, reading: ev.reading } }, partN++); m.appendChild(dots); }
+        else if (ev.type === 'suggest_fig') { cur = null; const { type, ...fg } = ev; addPart(m, { suggest_fig: fg }, partN++); m.appendChild(dots); }
+        else if (ev.type === 'fig_superseded') { const fb = m.querySelector(':scope > .cedits');   // its card gives way to the next
+          if (fb) { fb._g = fb._g.filter(g => g.pj != ev.part); edDraw(fb); } }
+        else if (ev.type === 'applied') { cur = null; addPart(m, { applied: ev }, partN++); m.appendChild(dots); nudgeReader(); }
+        else if (ev.type === 'synced') { cur = null; addPart(m, { synced: ev }, partN++); m.appendChild(dots); nudgeReader(); }
+        else if (ev.type === 'note') { log.insertBefore(noteMsg(ev.text), m); }
+        else if (ev.type === 'turn') { m.dataset.i = ev.msg; um.dataset.i = ev.msg - 1; }
+        else if (ev.type === 'error') { cur = null; const e = document.createElement('div'); e.className = 'cerr'; e.textContent = ev.text; m.appendChild(e); partN++; }
+        down(); });
+      return pump(); });
+    return pump();
+  }).catch(() => { m.insertAdjacentHTML('beforeend', '<div class="cerr">The assistant could not be reached.</div>'); finish(); });
+}
+/* while a reply is written the send button stops it (the reader's does the same) */
+const SEND_SVG = $('#chatsend').innerHTML,
+  STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="6.5" width="11" height="11" rx="2"/></svg>';
+let stopAsked = false;
+function sendBtn(busy) { const b = $('#chatsend'); b.disabled = false; b.classList.toggle('stop', busy);
+  b.innerHTML = busy ? STOP_SVG : SEND_SVG; b.title = busy ? 'Stop the reply' : 'Send';
+  b.setAttribute('aria-label', busy ? 'stop' : 'send'); }
+function stopReply() { stopAsked = true; if (!chatId) return;     // a new chat: once its id comes
+  const b = $('#chatsend'); b.disabled = true; b.title = 'Stopping…';
+  const t = document.querySelector('#chatlog .typing');
+  if (t) t.innerHTML = '<span></span><span></span><span></span><em>Stopping…</em>';
+  api('chat/ops', { op: 'stop', chat_id: chatId }).catch(() => {}); }
+function stoppedMark(m) { if (!m.querySelector('.cstopped')) m.insertAdjacentHTML('beforeend', '<div class="cstopped">Stopped</div>'); }
+// a reply that never finished: the app restarted (or the line dropped) while it was written; live: still being written
+function cutMark(m, live) { if (!m.querySelector('.ccut')) m.insertAdjacentHTML('beforeend', '<div class="ccut">' +
+  (live ? 'This reply is still being written: reload in a moment to see the rest.' : 'This reply was cut off: the app restarted while it was being written. What it did so far is kept; ask again to go on (the assistant knows where it stopped).') + '</div>'); }
+$('#chatsend').onclick = () => { if (chatBusy) stopReply(); else send(); };
+$('#chatq').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); } });
+$('#chatq').addEventListener('input', () => { const t = $('#chatq'); t.style.height = 'auto'; t.style.height = Math.min(200, t.scrollHeight) + 'px'; });
+$('#chatlog').addEventListener('click', e => {
+  const f = e.target.closest('.fref');
+  if (f) { e.preventDefault(); const p = knownFile(f.dataset.f);
+    if (p) { if (window.matchMedia('(max-width:900px)').matches) showPane('ed'); openFile(p.path, +f.dataset.l); } return; }
+  const a = e.target.closest('[data-ask]'); if (a) { send(a.dataset.ask); return; }
+  const rw = e.target.closest('[data-rw]'); if (rw) { rewindAct(rw); return; }
+  const me = e.target.closest('.msg.me'); if (me && !e.target.closest('a,img,button')) rewindAsk(me);
+});
+/* one of the author's earlier messages, picked: after a warning, the paper goes back to how it was
+   when it was sent (a new version: the later ones stay in History), the conversation after it is
+   taken off, and the message comes back to the box to change and send again (as in the reader) */
+function rewindAsk(me) {
+  if (me.dataset.i == null) return;
+  const was = $('#chatlog .rewind');
+  if (was) { const mine = was.previousElementSibling === me; was.remove();
+    const pk = $('#chatlog .msg.me.picked'); if (pk) pk.classList.remove('picked'); if (mine) return; }
+  if (chatBusy) { toast('Wait for the reply to finish'); return; }
+  me.classList.add('picked');
+  const w = document.createElement('div'); w.className = 'rewind'; w.setAttribute('role', 'alertdialog');
+  w.innerHTML = '<b>Go back to this message?</b><p>Edits made to the paper after you sent it will be undone: the LaTeX and the ' +
+    'paper go back to how they were then (the later versions stay in History, so nothing is lost)' +
+    (Object.keys(dirtyFiles()).length ? ', and what you have not saved here is dropped' : '') + '. The conversation after it is ' +
+    'removed, and this message comes back to the box for you to change or send again.</p><div class="rwacts">' +
+    '<button type="button" class="ghost sm" data-rw="no">Cancel</button><button type="button" class="rwgo" data-rw="go">Go back to here</button></div>';
+  me.after(w); w.querySelector('[data-rw=go]').focus(); w.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+async function rewindAct(b) {
+  const w = b.closest('.rewind'), me = w.previousElementSibling;
+  if (b.dataset.rw === 'no') { w.remove(); if (me) me.classList.remove('picked'); return; }
+  if (chatBusy || !chatId) return;
+  b.disabled = true; b.innerHTML = '<span class="cspin"></span> Going back…';
+  const r = await api('chat/ops', { op: 'rewind', chat_id: chatId, msg: +me.dataset.i }).catch(() => ({ error: 'The app could not be reached' }));
+  if (r.error) { b.disabled = false; b.textContent = 'Go back to here'; toast(r.error); return; }
+  // the files changed under the editor: it opens afresh, the message in the box
+  try { sessionStorage.setItem('pp.tex.rewound', JSON.stringify({ chat: chatId, text: r.text || '',
+    note: r.restored != null ? 'The paper is back as it was then (version ' + r.doc_version + ')' : 'Back to your message' })); } catch (x) {}
+  nudgeReader(); S.discard = true; location.reload();
+}
+$('#chatnew').onclick = () => { if (chatBusy) return; chatEmpty(); $('#chatq').focus(); };
+$('#chatsel').onchange = () => { if (chatBusy) return; const v = $('#chatsel').value; if (v) chatLoad(v); else chatEmpty(); };
+$('#chatmodel').onchange = function () { try { localStorage.setItem('pp.chatmodel', this.value); } catch (e) {}
+  if (chatId && chatModel && this.value !== chatModel) toast('Your next message goes to ' + modelName(this.value)); };
+/* Compact: the conversation summarised, the assistant goes on from it;
+   Clear: the messages go, the paper's context stays */
+$('#chatcompact').onclick = function () { const b = this; if (!chatId || chatBusy) return;
+  b.disabled = true; b.classList.add('busy');
+  api('chat/ops', { op: 'compact', chat_id: chatId }).then(d => { b.disabled = false; b.classList.remove('busy');
+    if (d.error) { toast(d.error); return; } toast(d.note); chatLoad(chatId); },
+    () => { b.disabled = false; b.classList.remove('busy'); toast('The assistant could not be reached'); }); };
+$('#chatclear').onclick = () => { if (!chatId || chatBusy) return;
+  api('chat/ops', { op: 'clear', chat_id: chatId }).then(d => { if (d.error) { toast(d.error); return; }
+    const keep = chatId; chatEmpty(); chatId = keep; modelShow();      // the same chat, emptied
+    chatList(keep); toast('Chat cleared'); $('#chatq').focus(); }); };
+
+/* ---------------- history ---------------- */
+function closeDrawers() { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('open'));
+  $('#revbtn').classList.remove('on'); }
+$('#histbtn').onclick = async () => {
+  closeDrawers(); await reloadProject();
+  const h = S.proj.history;
+  $('#hlist').innerHTML = (h.length ? h.map(x => '<div class="hist"><span class="v">v' + x.v + '</span><div class="n">' + esc(x.note || 'edit') +
+    '<small>' + new Date(x.time * 1000).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) + ' · ' + esc(x.files.join(', ')) +
+    '</small></div>' + (x.v !== S.version ? '<button class="btn" data-v="' + x.v + '">Restore</button>' : '<span class="badge" style="background:var(--teal-l);color:var(--teal)">current</span>') +
+    '</div>').join('') : '<div class="empty">No saved versions yet — the upload is version 0.</div>') +
+    (h.length ? '<div class="hist"><span class="v">v0</span><div class="n">The original upload<small>as converted</small></div>' +
+      '<button class="btn" data-v="0">Restore</button></div>' : '');
+  $('#hist').classList.add('open');
+};
+$('#hx').onclick = () => $('#hist').classList.remove('open');
+
+/* ---------------- Reviewer (tools/reviewer.js) ----------------
+   Here a fix goes into the open file (unsaved typing kept) and is saved,
+   as the assistant's LaTeX edits are; Undo puts the words back while
+   they are still there just once (this session's fixes); Show in LaTeX
+   opens the file at the finding's place */
+const revDone = {};          // this session's fixes: finding key -> the LaTeX change made
+async function revAt(x) {
+  const c = x.latex, a = x.at || (c && { path: c.path, line: c.line });
+  if (!a) { toast('This passage has no place in the LaTeX'); return null; }
+  await openFile(a.path);
+  const f = S.files[a.path], i = c && f && f.doc ? f.doc.getValue().indexOf(c.find) : -1;
+  return { path: a.path, line: i >= 0 ? f.doc.posFromIndex(i).line + 1 : a.line };
+}
+const REV = window.ppReviewer && ppReviewer({
+  drawer: $('#rev'), button: $('#revbtn'), all: $('#revall'), json: '/docs/' + ID + '/reviewer.json?latex=1',
+  api: '/api/docs/' + ID, where: 'LaTeX', toast, texify,
+  fixable: f => !!f.latex,
+  diff: f => f.latex ? { html: f.latex.diff, tex: true } : null,
+  go: async x => { const w = await revAt(x); if (w) { $('#rev').classList.remove('open'); $('#revbtn').classList.remove('on');
+    openFile(w.path, w.line); } },
+  ask: async f => {
+    const w = await revAt(f); if (!w) return;
+    const doc = S.files[w.path].doc, l = w.line - 1;
+    chatWith({ file: w.path, from: w.line, to: w.line, text: doc ? doc.getLine(l) : '' });
+    const q = $('#chatq'); q.value = 'The reviewer found this (' + f.kind + '): ' + f.issue + (f.quote ? '\n“' + f.quote + '”' : '') +
+      '\nSuggest an edit that fixes it, if it merits one.';
+    q.dispatchEvent(new Event('input')); setTimeout(() => q.focus(), 80);
+  },
+  apply: async fs => {
+    const at = {}, ok = [];
+    for (const f of fs) { const c = f.latex, i = await findChange(c); if (i >= 0) (at[c.path] = at[c.path] || []).push({ f, c, i }); }
+    // from the end of each file, so the places of the ones before stay right
+    for (const p in at) at[p].sort((x, y) => y.i - x.i).forEach(({ f, c, i }) => { putChange(c, i); ok.push([f, c, i]); });
+    if (!ok.length) throw new Error('Out of date: its words are no longer in the file. Check again.');
+    if (!(await saveNow())) throw new Error('Not saved');
+    ok.forEach(([f, c, i]) => { revDone[f.k] = { c, i }; });
+    if ($('#auto').checked) compile();
+    const miss = fs.length - ok.length;
+    toast('Applied ' + ok.length + ' fix' + (ok.length === 1 ? '' : 'es') + (S.proj.draft && !S.proj.synced ? '' : ' — the reader follows') +
+      (miss ? ' · ' + miss + ' out of date' : ''));
+    return null;
+  },
+  canUndo: f => !!revDone[f.k],
+  undo: async f => {
+    // the fixed words where the fix put them, else wherever they are just once
+    const { c, i: at } = revDone[f.k], back = { path: c.path, find: c.replace, replace: c.find };
+    let i = await findChange(back);
+    const doc = S.files[c.path] && S.files[c.path].doc;
+    if (doc && doc.getValue().substr(at, c.replace.length) === c.replace) i = at;
+    if (i < 0) throw new Error('This passage changed after the fix: undo it in the editor (Ctrl/⌘+Z)');
+    putChange(back, i);
+    if (!(await saveNow())) throw new Error('Not saved');
+    delete revDone[f.k]; toast('Fix taken back'); if ($('#auto').checked) compile();
+  } });
+$('#revbtn').onclick = () => { const d = $('#rev'), was = d.classList.contains('open'); closeDrawers();
+  $('#revbtn').classList.toggle('on', !was); if (!was) { d.classList.add('open'); REV && REV.load(); } };
+$('#revx').onclick = () => { $('#rev').classList.remove('open'); $('#revbtn').classList.remove('on'); };
+$('#hlist').addEventListener('click', async e => {
+  const b = e.target.closest('[data-v]'); if (!b) return;
+  if (!confirm('Restore version ' + b.dataset.v + '? It is saved as a new version; nothing is lost.')) return;
+  await saveNow();
+  const d = await api('revert', { v: +b.dataset.v });
+  if (d.status !== 200) { toast(d.error || 'Could not restore'); return; }
+  toast('Restored version ' + b.dataset.v); setTimeout(() => location.reload(), 600);
+});
+
+/* ---------------- downloads, keys ---------------- */
+$('#dlbtn').onclick = e => { e.stopPropagation(); $('#dlmenu').hidden = !$('#dlmenu').hidden; };
+document.addEventListener('click', e => { if (!e.target.closest('.menuw')) $('#dlmenu').hidden = true; });
+document.addEventListener('keydown', e => {
+  const mod = e.metaKey || e.ctrlKey;
+  if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); compile(); }
+  else if (mod && e.key === 'Enter' && !e.target.closest('#ai')) { e.preventDefault(); compile(); }
+  else if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); openDrawerAI(); }
+  else if (mod && e.key.toLowerCase() === 'j') { e.preventDefault(); forward(); }
+  else if (e.key === 'Escape') closeDrawers();
+});
+addEventListener('beforeunload', e => { if (!S.discard && Object.keys(dirtyFiles()).length) { saveNow(); e.preventDefault(); e.returnValue = ''; } });
+
+/* ---------------- start ---------------- */
+async function reloadProject() {
+  const d = await api(location.pathname + '/project.json');
+  if (d.status !== 200) throw new Error(d.error || 'could not load the project');
+  S.proj = d;
+  if (d.version > S.version) S.version = d.version;
+  renderTree();
+}
+(async () => {
+  try { await reloadProject(); }
+  catch (e) { $('#pages').innerHTML = ''; setStatus(e.message, 'bad');
+    $('#cmwrap').innerHTML = '<div class="pmsg"><b>Cannot open this document</b>' + esc(e.message) + '</div>'; return; }
+  S.version = S.proj.version;
+  document.title = S.proj.name + ' — LaTeX — Paper Parse';
+  $('#title').textContent = S.proj.name;
+  $('#draftb').hidden = !S.proj.draft || !!S.proj.synced;
+  $('#draftnote').hidden = !S.proj.draft || !!S.proj.synced;
+  $('#syncnote').hidden = !S.proj.synced;
+  if (!S.proj.assistant) $('#aibtn').title = 'The assistant needs ANTHROPIC_API_KEY in .env';
+  if (window.CodeMirror) {
+    cm = CodeMirror($('#cmwrap'), {
+      value: '', mode: 'stex', lineNumbers: true, lineWrapping: true, matchBrackets: true,
+      autoCloseBrackets: { pairs: '()[]{}$$', explode: '{}' }, styleActiveLine: true, indentUnit: 2, tabSize: 2,
+      gutters: ['pp-marks', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'], foldGutter: true,
+      foldOptions: { rangeFinder: stexFold, widget: '\u2026' },
+      extraKeys: { 'Ctrl-F': 'find', 'Cmd-F': 'find', 'Ctrl-Q': c => c.foldCode(c.getCursor()), 'Cmd-Q': c => c.foldCode(c.getCursor()),
+        'Shift-Ctrl-[': () => foldAll(true), 'Shift-Cmd-[': () => foldAll(true),
+        'Shift-Ctrl-]': () => foldAll(false), 'Shift-Cmd-]': () => foldAll(false), Tab: c =>
+        c.somethingSelected() ? c.indentSelection('add') : c.replaceSelection('  ') } });
+    let ot;
+    cm.on('changes', () => { scheduleSave(); renderTabs(); clearTimeout(ot); ot = setTimeout(renderOutline, 400); });
+    cm.on('dblclick', (c, e) => { if (e.altKey) { e.preventDefault(); forward(); } });
+    cm.on('scroll', () => { if (selFrom === 'code') hideBar(); });
+    cm.on('cursorActivity', () => {
+      if (selFrom === 'code' && !cm.somethingSelected()) hideBar();
+      // touch: no mouseup after a long-press selection
+      else if (touchSel && cm.somethingSelected()) { clearTimeout(selT); selT = setTimeout(codeSelection, 350); }
+    });
+  } else {                                // CodeMirror did not load: a plain editor
+    $('#cmwrap').innerHTML = '<textarea class="fallback" spellcheck="false"></textarea>';
+    $('#cmwrap textarea').addEventListener('input', scheduleSave);
+  }
+  await openFile(S.proj.main);
+  // ?file=: opened from the reader's Assets panel
+  // (&line=: a LaTeX change the reader's assistant suggested)
+  const qs = new URLSearchParams(location.search), want = qs.get('file'), wl = +qs.get('line') || 0;
+  if (want && S.proj.files.some(f => f.path === want && f.editable) && (want !== S.proj.main || wl)) await openFile(want, wl || undefined);
+  setStatus('Saved · v' + S.version);
+  if (S.proj.pdf) {                       // the last PDF straight away, then a fresh compile
+    loadPdf('/docs/' + ID + '/latex/pdf?t=' + Math.round(S.proj.pdf_time * 1000)).catch(() => {});
+  }
+  compile();
+  // back from an earlier message (rewindAct): its chat open, the message in the box
+  let rw = null; try { rw = JSON.parse(sessionStorage.getItem('pp.tex.rewound') || 'null'); sessionStorage.removeItem('pp.tex.rewound'); } catch (x) {}
+  if (rw && S.proj.assistant) { openDrawerAI('chat'); await chatLoad(rw.chat).catch(() => {});
+    const q = $('#chatq'); q.value = rw.text; q.dispatchEvent(new Event('input')); q.focus(); toast(rw.note); }
+})();
+</script><button type="button" class="edtab none" hidden="" aria-expanded="false" title="Suggested edits: all applied or set aside" style="left: 1008px; top: 110.797px; z-index: 41;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg><span class="edtab-n">✓</span></button><aside class="edpanel" hidden="" aria-label="Suggested edits" style="top: 52.7969px; z-index: 41; right: 432px; width: 544px;"><header><span class="edp-t">Suggested edits</span><span class="edp-st"></span><label class="edp-only" title="Hide the edits already applied or set aside"><input type="checkbox" style=""> To apply only</label><button type="button" class="edp-pin" aria-pressed="false" title="Keep open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"></path><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"></path></svg></button><button type="button" class="edp-x" aria-label="close" title="Close">✕</button></header><div class="edp-body"></div></aside>
+
+
+</body></html>
