@@ -1,6 +1,6 @@
 """Two-level agent review through Deep Infra (OpenAI-compatible API).
 
-  Orchestrator (reasoning model, default openai/gpt-oss-120b)
+  Orchestrator (default google/gemini-3.7-flash)
       1. plans: reads the file inventory, decides what to look for in each file and which
          cross-checks to run (e.g. "do the draft's numbers match results/summary.txt?")
       4. synthesises: turns the executors' notes and check results into the overview
@@ -30,7 +30,7 @@ from analyze import SYSTEM as REVIEW_SYSTEM, Check, FigureReview, FileInsight, P
 from inventory import TEXT_LIMIT
 
 BASE_URL = os.environ.get("DEEPINFRA_BASE_URL", "https://api.deepinfra.com/v1/openai")
-ORCHESTRATOR = os.environ.get("PAPER_DRAFT_ORCHESTRATOR", "openai/gpt-oss-120b")
+ORCHESTRATOR = os.environ.get("PAPER_DRAFT_ORCHESTRATOR", "google/gemini-3.7-flash")
 EXECUTOR = os.environ.get("PAPER_DRAFT_EXECUTOR", "anthropic/claude-haiku-4-5")
 WORKERS = int(os.environ.get("PAPER_DRAFT_WORKERS", "6"))
 PLAN_EFFORT = os.environ.get("PAPER_DRAFT_PLAN_EFFORT", "medium")      # low | medium | high

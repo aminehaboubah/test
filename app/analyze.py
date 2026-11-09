@@ -124,7 +124,10 @@ Field guidance:
 - readiness.score is 0-100: how close the materials are to supporting a submission-quality paper.
 - coverage lists the standard sections for this kind of paper (title, abstract, introduction, \
 related work, methods, results, discussion, conclusion, references, data availability, code \
-availability, plus field-specific ones) with what supports each.
+availability, plus field-specific ones) with what supports each. "missing" means the section \
+does not exist in the draft and nothing in the files covers it; a section that exists but is weak, \
+wrong or unsupported is "partial" (say why in the note). A combined heading such as "Results and \
+Discussion" covers both sections.
 - file_insights covers every file the user uploaded, using the exact paths given.
 - figures covers every figure file, using the exact paths given.
 - gaps are concrete and actionable, ordered from most to least severe.

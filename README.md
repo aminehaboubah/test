@@ -35,7 +35,7 @@ without either, to a local scan.
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `PAPER_DRAFT_ORCHESTRATOR` | `openai/gpt-oss-120b` | Deep Infra model that plans and writes the overview |
+| `PAPER_DRAFT_ORCHESTRATOR` | `google/gemini-3.7-flash` | Deep Infra model that plans and writes the overview |
 | `PAPER_DRAFT_EXECUTOR` | `anthropic/claude-haiku-4-5` | Deep Infra model that reads files and runs checks |
 | `PAPER_DRAFT_PLAN_EFFORT` / `PAPER_DRAFT_REVIEW_EFFORT` | `medium` / `high` | Orchestrator reasoning effort |
 | `PAPER_DRAFT_WORKERS` | `6` | Parallel executor calls |
@@ -56,9 +56,10 @@ without either, to a local scan.
 Every call uses a strict JSON schema; the dashboard's "How this overview was made" panel shows the
 plan, the cross-checks and each call's time and tokens.
 
-On the sample project a full run takes about 8-9 minutes, almost all of it the orchestrator
-(gpt-oss-120b on Deep Infra generated ~25 tokens/s during testing); the 19 executor calls take
-about 25 s of wall time.
+On the sample project a full run takes about 1.5-2 minutes: the orchestrator (Gemini 3.7 Flash)
+needs ~10 s to plan and ~60 s to write the overview, and the 16-19 executor calls run in parallel
+in about 25 s of wall time. (With `openai/gpt-oss-120b` as orchestrator the same run took ~6 minutes.)
+Deep Infra currently appears to ignore the reasoning-effort setting for Gemini 3.7 Flash.
 
 To try it, upload the folder `samples/battery-study` and choose "I have a draft".
 
