@@ -212,3 +212,15 @@ td.st{white-space:nowrap}
 .mini{font-size:.8rem; color:var(--faint)}
 details.omit{margin-top:.6rem; font-size:.8rem; color:var(--faint)}
 details.omit summary{cursor:pointer}
+
+/* agent trace */
+details.agents summary{display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:1.05rem 1.2rem;
+  cursor:pointer; list-style:none}
+details.agents summary::-webkit-details-marker{display:none}
+details.agents summary h2{font-size:1.18rem}
+details.agents[open] summary{padding-bottom:.2rem}
+details.agents .tiles{margin:.4rem 0 .8rem}
+.agentplan{padding:0 1.2rem .8rem; font-size:.86rem; color:var(--muted)}
+.agentplan h4{margin:.8rem 0 .35rem; font-size:.74rem; text-transform:uppercase; letter-spacing:.06em; color:var(--faint)}
+.agentplan ol,.agentplan ul{margin:0; padding-left:1.2rem} .agentplan li{margin:.35rem 0}
+@media (max-width:560px){details.agents .tiles{grid-template-columns:1fr !important}}

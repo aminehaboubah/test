@@ -63,7 +63,7 @@
       <div class="ico"><svg class="i"><use href="#i-up"/></svg></div>
       <div class="big">Drop files or folders here or <u>browse files</u></div>
       <div class="sub">Or <a id="pickFolder">choose a whole folder</a>. Zip archives are unpacked.
-        Files stay on this machine; with AI review on, their contents are sent to Anthropic to be read.</div>
+        Files stay on this machine; with AI review on, their contents are sent to <span id="provider">the AI provider</span> to be read.</div>
       <div class="fmts-in">
         <span class="tag k-data"><i></i>Data .csv .txt .json .xlsx</span>
         <span class="tag k-script"><i></i>Code .py .ipynb .m .R</span>
@@ -86,9 +86,9 @@
 
     <div class="go">
       <label class="toggle" id="aiToggle"><input type="checkbox" id="useAi" checked><span class="knob"></span>
-        <span><b>AI review</b> — Claude reads your files
+        <span><b>AI review</b> — AI agents read your files
           <span class="hint" tabindex="0">?<span class="tip">Off: a local scan of file types, sizes and which scripts make which outputs.
-          On: Claude reads the profiled data, your code, your draft and your figures, then writes the overview. Needs ANTHROPIC_API_KEY on the server.</span></span></span></label>
+          On: an orchestrator model plans the review, executor models read every file and figure and run cross-checks, then the orchestrator writes the overview. Needs DEEPINFRA_API_KEY on the server.</span></span></span></label>
       <button class="btn" id="goBtn" type="button" disabled>Analyze my materials <svg class="i"><use href="#i-arrow"/></svg></button>
     </div>
     <div id="progress" class="progress" hidden>
@@ -189,6 +189,13 @@
           </div>
         </div>
       </div>
+      <details class="panel agents" id="agentsPanel" style="margin-top:1rem" hidden>
+        <summary><h2>How this overview was made</h2><span class="mini">two agents · click to expand</span></summary>
+        <div class="tiles" id="agentRoles" style="grid-template-columns:repeat(2,minmax(0,1fr)); padding:0 1.2rem"></div>
+        <div class="agentplan" id="agentPlan"></div>
+        <div class="scroll" style="padding:0 0 .6rem"><table><thead><tr><th>Agent</th><th>Task</th><th style="text-align:right">Time</th>
+          <th style="text-align:right">Tokens in</th><th style="text-align:right">Tokens out</th></tr></thead><tbody id="agentCalls"></tbody></table></div>
+      </details>
       <div class="actions" style="padding:1rem 0 0">
         <button class="btn line" id="addBtn" type="button"><svg class="i"><use href="#i-plus"/></svg> Add files</button>
         <button class="btn" id="rerunBtn" type="button"><svg class="i"><use href="#i-redo"/></svg> Run again</button>

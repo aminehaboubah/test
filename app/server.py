@@ -22,6 +22,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 sys.path.insert(0, str(Path(__file__).parent))
+import agents  # noqa: E402
 import analyze  # noqa: E402
 import inventory  # noqa: E402
 
@@ -80,6 +81,14 @@ def extract_zip(zpath: Path, dest: Path) -> list[str]:
     return out
 
 
+def ai_provider() -> dict | None:
+    if agents.available():
+        return {"provider": "Deep Infra", "orchestrator": agents.ORCHESTRATOR, "executor": agents.EXECUTOR}
+    if analyze.have_credentials():
+        return {"provider": "Anthropic", "orchestrator": analyze.MODEL, "executor": None}
+    return None
+
+
 def run_job(pid: str, scenario: str, notes: str, mode: str) -> None:
     root = project_dir(pid)
     files = root / "files"
@@ -92,8 +101,10 @@ def run_job(pid: str, scenario: str, notes: str, mode: str) -> None:
         stage("Reading and profiling your files")
         manifest = inventory.build_manifest(files)
         write_json(root / "manifest.json", inventory.public(manifest))
-        use_ai = mode == "ai" or (mode == "auto" and analyze.have_credentials())
-        if use_ai:
+        use_ai = mode == "ai" or (mode == "auto" and ai_provider())
+        if use_ai and agents.available():
+            result = agents.agent_review(files, manifest, scenario, notes, stage)
+        elif use_ai:
             result = analyze.ai_review(files, manifest, scenario, notes, stage)
         else:
             stage("Running the local scan")
@@ -106,7 +117,7 @@ def run_job(pid: str, scenario: str, notes: str, mode: str) -> None:
         traceback.print_exc()
         msg = str(e)
         if e.__class__.__name__ == "AuthenticationError":
-            msg = "Anthropic credentials were rejected. Check ANTHROPIC_API_KEY."
+            msg = "The API key was rejected. Check DEEPINFRA_API_KEY (or ANTHROPIC_API_KEY)."
         elif e.__class__.__name__ == "RateLimitError":
             msg = "Rate limited by the Anthropic API. Try again in a minute."
         with LOCK:
@@ -163,7 +174,8 @@ class Handler(BaseHTTPRequestHandler):
             if path.startswith("/static/"):
                 return self.send_file(STATIC / safe_rel(path[len("/static/"):]))
             if path == "/api/status":
-                return self.send_json({"ai_available": analyze.have_credentials(), "model": analyze.MODEL})
+                prov = ai_provider()
+                return self.send_json({"ai_available": bool(prov), **(prov or {})})
             if path == "/api/projects":
                 items = []
                 for d in sorted(DATA.glob("*"), key=lambda d: d.stat().st_mtime, reverse=True)[:20]:
@@ -271,8 +283,10 @@ def main():
     DATA.mkdir(parents=True, exist_ok=True)
     host = os.environ.get("HOST", "127.0.0.1")
     port = int(os.environ.get("PORT", "8765"))
+    prov = ai_provider()
     print(f"Paper Draft on http://{host}:{port}  (AI review: "
-          f"{'on, ' + analyze.MODEL if analyze.have_credentials() else 'off - set ANTHROPIC_API_KEY'})")
+          + (f"{prov['provider']} - orchestrator {prov['orchestrator']}, executor {prov['executor']})" if prov
+             else "off - set DEEPINFRA_API_KEY)"))
     ThreadingHTTPServer((host, port), Handler).serve_forever()
 
 

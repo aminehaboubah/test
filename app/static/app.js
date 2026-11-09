@@ -36,10 +36,13 @@ async function init() {
   if (S.status.ai_available) {
     pill.classList.add("on");
     pill.querySelector("span").textContent = "AI review on";
-    pill.title = "Model: " + S.status.model;
+    $("#provider").textContent = S.status.provider || "the AI provider";
+    pill.title = S.status.executor
+      ? `${S.status.provider}: orchestrator ${S.status.orchestrator}, executor ${S.status.executor}`
+      : `${S.status.provider}: ${S.status.orchestrator}`;
   } else {
     pill.querySelector("span").textContent = "Local scan only";
-    pill.title = "Set ANTHROPIC_API_KEY on the server to turn on AI review";
+    pill.title = "Set DEEPINFRA_API_KEY on the server to turn on AI review";
     $("#useAi").checked = false;
     $("#useAi").disabled = true;
     $("#aiToggle").classList.add("off");
@@ -159,7 +162,7 @@ function renderStaged() {
   all.forEach((p) => c[guessKind(p)]++);
   $("#stagedSum").innerHTML = `<b>${all.length} file${all.length === 1 ? "" : "s"}</b>` +
     ["data", "script", "figure", "doc", "other"].filter((k) => c[k]).map((k) =>
-      `<span class="tag k-${k}"><i></i>${c[k]} ${{data: "data", script: "code", figure: "figures", doc: "docs", other: "other"}[k]}</span>`).join("") +
+      `<span class="tag k-${k}"><i></i>${c[k]} ${(c[k] === 1 ? {data: "data", script: "code", figure: "figure", doc: "doc", other: "other"} : {data: "data", script: "code", figure: "figures", doc: "docs", other: "other"})[k]}</span>`).join("") +
     (pend.some((x) => x.state === "busy") ? ` <span>uploading ${pend.filter((x) => x.state === "busy").length}…</span>` : "");
   $("#stagedList").innerHTML =
     pend.map((x) => `<div class="up ${x.state}"><span class="dot"></span><span class="kb ${guessKind(x.path)}">${KLABEL[guessKind(x.path)]}</span>
@@ -189,6 +192,7 @@ async function analyze() {
 async function poll() {
   showUpload();
   $("#progress").hidden = false;
+  $("#progress").scrollIntoView({block: "center", behavior: "smooth"});
   $("#goBtn").disabled = true;
   const t0 = Date.now();
   const tick = setInterval(() => { $("#elapsed").textContent = Math.round((Date.now() - t0) / 1000) + " s"; }, 500);
@@ -238,7 +242,8 @@ function showDash(p) {
 
   // summary card
   $("#sumChips").innerHTML = [
-    A.mode === "ai" ? `<span class="chip">✧ AI review · ${esc(A.model)}</span>` : `<span class="chip gray">Local scan</span>`,
+    A.mode === "ai" ? (A.agents ? `<span class="chip">✧ AI review · 2 agents</span>` : `<span class="chip">✧ AI review · ${esc(A.model)}</span>`)
+      : `<span class="chip gray">Local scan</span>`,
     `<span class="chip ${A.scenario === "draft" ? "rust" : "violet"}">${A.scenario === "draft" ? "Draft review" : "No draft yet"}</span>`,
     R.field && !/local scan/i.test(R.field) ? `<span class="chip gray">${esc(R.field)}</span>` : "",
     R.paper_type && !/local scan/i.test(R.paper_type) ? `<span class="chip gray">${esc(R.paper_type)}</span>` : "",
@@ -338,8 +343,32 @@ function showDash(p) {
   $("#foot").textContent = A.mode === "ai"
     ? `AI review by ${A.model} · ${fmtN(A.usage?.input_tokens)} tokens read, ${fmtN(A.usage?.output_tokens)} written`
     : "Local scan — turn on AI review for a full reading.";
+  renderAgents(A);
   $("#omitWrap").innerHTML = A.omitted?.length ? `<details class="omit"><summary>${A.omitted.length} item(s) not sent to the model in full</summary>
     <ul>${A.omitted.map((o) => `<li>${esc(o)}</li>`).join("")}</ul></details>` : "";
+}
+
+function renderAgents(A) {
+  const box = $("#agentsPanel");
+  box.hidden = !A.agents;
+  if (!A.agents) return;
+  const G = A.agents, U = A.usage?.by_role || {};
+  const role = (k, label, desc) => {
+    const u = U[k] || {};
+    return `<div class="tile ${k === "orchestrator" ? "doc" : "script"}"><div class="k">${label}</div>
+      <div class="v" style="font-size:1.05rem">${esc(G[k])}</div>
+      <div class="s">${desc}<br>${fmtN(u.calls)} calls · ${fmtN(u.input_tokens)} in / ${fmtN(u.output_tokens)} out · ${u.seconds ?? 0} s of model time</div></div>`;
+  };
+  $("#agentRoles").innerHTML = role("orchestrator", "Orchestrator", "Planned the review and wrote this overview.") +
+    role("executor", "Executor", "Read each file and ran the cross-checks.");
+  const plan = G.plan || {};
+  $("#agentPlan").innerHTML = `<p class="mini" style="margin:.2rem 0 .6rem">${esc(plan.what_the_project_seems_to_be || "")}</p>
+    <h4>Cross-checks it asked for</h4><ol>${(plan.cross_checks || []).map((c) => `<li>${esc(c.check)}
+      <div class="ev">${c.files.map((f) => `<span class="fchip">${esc(f)}</span>`).join("")}</div></li>`).join("")}</ol>
+    <h4>What it asked the executor to look for</h4><ul>${(plan.file_tasks || []).map((t) => `<li><span class="fchip">${esc(t.path)}</span> ${esc(t.focus)}</li>`).join("")}</ul>
+    ${G.failed?.length ? `<h4 style="color:var(--red)">Failed</h4><ul>${G.failed.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>` : ""}`;
+  $("#agentCalls").innerHTML = (G.calls || []).map((c) => `<tr><td>${esc(c.role)}</td><td class="path">${esc(c.label)}</td>
+    <td style="text-align:right">${c.seconds} s</td><td style="text-align:right">${fmtN(c.input_tokens)}</td><td style="text-align:right">${fmtN(c.output_tokens)}</td></tr>`).join("");
 }
 
 function list(arr) { return arr?.length ? `<ul>${arr.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : `<span>—</span>`; }
