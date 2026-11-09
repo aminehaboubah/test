@@ -1,0 +1,5 @@
+baseline: retention@500 = 35.5 +/- 4.1 % (n=4 cells)
+baseline: mean CE (cycles 10-500) = 99.819 %
+additive: retention@500 = 65.0 +/- 2.1 % (n=4 cells)
+additive: mean CE (cycles 10-500) = 99.910 %
+relative reduction in capacity fade = 45.8 %

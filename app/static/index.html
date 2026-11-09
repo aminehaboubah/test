@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Draft — your project</title>
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/static/base.css">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="m9 15 4.5-4.5 1.5 1.5L10.5 16.5H9z"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="m7 9 5-5 5 5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></symbol>
+  <symbol id="i-draft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+</svg>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="/"><span class="logo"><svg class="i"><use href="#i-logo"/></svg></span>Paper <em>Draft</em></a>
+    <span class="space-tag">Your project</span>
+    <nav id="nav">
+      <a href="#upload" class="on">Upload</a>
+      <a href="#overview" class="dis">Overview</a>
+      <a href="#gaps" class="dis">Gaps</a>
+      <a href="#figures" class="dis">Figures</a>
+      <a href="#files" class="dis">Files</a>
+      <a href="#next" class="dis">Next steps</a>
+    </nav>
+    <div class="auth">
+      <span class="status-pill" id="aiPill"><i></i><span>Checking…</span></span>
+      <button class="ghost" id="newBtn" type="button">New project</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ======================= UPLOAD ======================= -->
+  <section id="upload" class="hero" style="padding-top:2.6rem">
+    <span class="eyebrow"><svg class="i"><use href="#i-spark"/></svg> Data · Scripts · Figures · Docs</span>
+    <h1 id="heroTitle">Bring your results. <span>We'll map</span> the paper in them.</h1>
+    <p class="lead">Upload the code, result files and figures behind your work — and your draft, if you have one.
+      You get a one-page overview of what you have, what it shows, and what is still missing.</p>
+
+    <div class="scen" role="radiogroup" aria-label="Where are you">
+      <label class="sel"><input type="radio" name="scen" value="fresh" checked>
+        <span class="si"><svg class="i"><use href="#i-spark"/></svg></span>
+        <span><b>No paper yet</b><span>Start from my code, results and figures.</span></span></label>
+      <label><input type="radio" name="scen" value="draft">
+        <span class="si"><svg class="i"><use href="#i-draft"/></svg></span>
+        <span><b>I have a draft</b><span>Written by me or an AI model, and not good enough yet. Check it against my results.</span></span></label>
+    </div>
+
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Upload files">
+      <div class="ico"><svg class="i"><use href="#i-up"/></svg></div>
+      <div class="big">Drop files or folders here or <u>browse files</u></div>
+      <div class="sub">Or <a id="pickFolder">choose a whole folder</a>. Zip archives are unpacked.
+        Files stay on this machine; with AI review on, their contents are sent to Anthropic to be read.</div>
+      <div class="fmts-in">
+        <span class="tag k-data"><i></i>Data .csv .txt .json .xlsx</span>
+        <span class="tag k-script"><i></i>Code .py .ipynb .m .R</span>
+        <span class="tag k-figure"><i></i>Figures .png .jpg .svg .pdf</span>
+        <span class="tag k-doc"><i></i>Docs .docx .tex .md .pdf .bib</span>
+      </div>
+      <input type="file" id="fileIn" multiple>
+      <input type="file" id="dirIn" webkitdirectory multiple>
+    </div>
+
+    <div class="staged" id="staged" hidden>
+      <div class="sum" id="stagedSum"></div>
+      <div class="list" id="stagedList"></div>
+    </div>
+
+    <details class="notes" id="notesBox">
+      <summary>Tell us about the paper <small>— optional: main claim, target journal, anything the files don't say</small></summary>
+      <textarea id="notes" placeholder="e.g. We show that the new electrolyte halves capacity fade over 500 cycles. Target: Journal of Power Sources."></textarea>
+    </details>
+
+    <div class="go">
+      <label class="toggle" id="aiToggle"><input type="checkbox" id="useAi" checked><span class="knob"></span>
+        <span><b>AI review</b> — Claude reads your files
+          <span class="hint" tabindex="0">?<span class="tip">Off: a local scan of file types, sizes and which scripts make which outputs.
+          On: Claude reads the profiled data, your code, your draft and your figures, then writes the overview. Needs ANTHROPIC_API_KEY on the server.</span></span></span></label>
+      <button class="btn" id="goBtn" type="button" disabled>Analyze my materials <svg class="i"><use href="#i-arrow"/></svg></button>
+    </div>
+    <div id="progress" class="progress" hidden>
+      <div class="t"><b id="stage">Starting</b><span id="elapsed">0 s</span></div>
+      <div class="bar"><i></i></div>
+    </div>
+    <div id="alert" class="alert" hidden></div>
+    <div class="recent" id="recent"></div>
+  </section>
+
+  <!-- ======================= DASHBOARD ======================= -->
+  <div id="dash" hidden>
+    <section id="overview">
+      <div class="sumcard">
+        <div>
+          <div class="chips" id="sumChips"></div>
+          <h1 id="title"></h1>
+          <p class="one" id="oneLine"></p>
+          <p class="rs" id="research"></p>
+        </div>
+        <div class="ring" id="ring"></div>
+      </div>
+      <div class="tiles" id="tiles"></div>
+    </section>
+
+    <section id="gaps">
+      <div class="grid2">
+        <div class="panel">
+          <h2>What your work shows</h2>
+          <p class="hint2">Findings the materials support, with the files behind each.</p>
+          <ul class="items" id="findings"></ul>
+        </div>
+        <div class="panel">
+          <h2>What's missing</h2>
+          <p class="hint2">What to add or fix before a strong paper can be written.</p>
+          <div class="gapfilter" id="gapFilter"></div>
+          <ul class="items" id="gapList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="coverage">
+      <div class="panel">
+        <h2>Paper coverage</h2>
+        <p class="hint2" id="covHint">How far your materials already cover each section of the paper.</p>
+        <div class="cov" id="cov"></div>
+      </div>
+      <div class="panel" id="draftPanel" style="margin-top:1rem" hidden>
+        <h2>Your draft, checked against your results</h2>
+        <div id="drafts"></div>
+      </div>
+    </section>
+
+    <section id="figures">
+      <div class="panel">
+        <div class="ph"><h2>Figures</h2><span class="mini" id="figCount"></span></div>
+        <p class="hint2">What each figure shows, a caption to start from, and anything to fix.</p>
+        <div class="figs" id="figs"></div>
+      </div>
+    </section>
+
+    <section id="files">
+      <div class="panel">
+        <h2>How your files connect</h2>
+        <p class="hint2">Inputs and outputs found in each script.</p>
+        <div class="flow" id="flow"></div>
+        <div class="loose" id="loose"></div>
+      </div>
+      <div class="panel files" style="margin-top:1rem">
+        <div class="ph"><h2>All files</h2><span class="mini" id="fileCount"></span></div>
+        <div class="tools">
+          <div class="seg" id="fileSeg">
+            <button class="on" data-k="all">All</button><button data-k="data">Data</button><button data-k="script">Code</button>
+            <button data-k="figure">Figures</button><button data-k="doc">Docs</button>
+          </div>
+        </div>
+        <div class="scroll"><table>
+          <thead><tr><th>File</th><th>Role</th><th>Contents</th><th>Status</th><th>Notes</th></tr></thead>
+          <tbody id="fileRows"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <section id="next">
+      <div class="grid2">
+        <div class="panel">
+          <h2>Next steps</h2>
+          <ol class="steps" id="steps"></ol>
+        </div>
+        <div>
+          <div class="panel">
+            <h2>Questions for you</h2>
+            <ol class="qs" id="qs"></ol>
+          </div>
+          <div class="panel" style="margin-top:1rem" id="checksPanel">
+            <h2>Consistency checks</h2>
+            <ul class="items" id="checks"></ul>
+          </div>
+        </div>
+      </div>
+      <div class="actions" style="padding:1rem 0 0">
+        <button class="btn line" id="addBtn" type="button"><svg class="i"><use href="#i-plus"/></svg> Add files</button>
+        <button class="btn" id="rerunBtn" type="button"><svg class="i"><use href="#i-redo"/></svg> Run again</button>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <span>Runs locally on your machine.</span>
+    <span id="foot">Part one of the Paper Parse workflow: results → first draft.</span>
+  </footer>
+  <div id="omitWrap"></div>
+</main>
+<div class="dropall" id="dropall" hidden><div>Drop to add to your project</div></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
